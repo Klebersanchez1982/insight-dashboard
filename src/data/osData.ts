@@ -1,15 +1,28 @@
 export interface OSRecord {
   numero: number;
+  seq?: number;
   statusLab: string;
   statusOS: string;
   emissao: string;
   tipoOS: string;
   descricao: string;
+  numSerie?: string;
   razaoSocial: string;
   cidade: string;
   uf: string;
   categoriaOS: string;
   tecnico: string;
+}
+
+export function getStatusLabCountData(data: OSRecord[]) {
+  const groups: Record<string, number> = {};
+  data.forEach(os => {
+    const status = os.statusLab || "SEM STATUS";
+    groups[status] = (groups[status] || 0) + 1;
+  });
+  return Object.entries(groups)
+    .map(([name, value]) => ({ name, value }))
+    .sort((a, b) => b.value - a.value);
 }
 
 export const osData: OSRecord[] = [
