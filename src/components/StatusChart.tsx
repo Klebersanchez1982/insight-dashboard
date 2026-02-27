@@ -20,16 +20,16 @@ interface StatusChartProps {
 export function StatusChart({ data, title, layout = "horizontal" }: StatusChartProps) {
   if (layout === "vertical") {
     return (
-      <div className="rounded-lg bg-card border border-border p-5 animate-slide-up">
-        <h3 className="text-sm font-medium uppercase tracking-wider text-muted-foreground mb-4">{title}</h3>
-        <ResponsiveContainer width="100%" height={data.length * 36 + 20}>
+      <div className="rounded-lg bg-card border border-border p-6 animate-slide-up">
+        <h3 className="text-sm xl:text-base font-medium uppercase tracking-wider text-muted-foreground mb-4">{title}</h3>
+        <ResponsiveContainer width="100%" height={data.length * 44 + 20}>
           <BarChart data={data} layout="vertical" margin={{ left: 0, right: 16, top: 0, bottom: 0 }}>
             <XAxis type="number" hide />
-            <YAxis type="category" dataKey="name" width={160} tick={{ fill: "hsl(210, 20%, 70%)", fontSize: 11 }} axisLine={false} tickLine={false} />
+            <YAxis type="category" dataKey="name" width={180} tick={{ fill: "hsl(210, 20%, 70%)", fontSize: 13 }} axisLine={false} tickLine={false} />
             <Tooltip
-              contentStyle={{ background: "hsl(220, 18%, 16%)", border: "1px solid hsl(220, 15%, 22%)", borderRadius: 8, color: "hsl(210, 20%, 90%)", fontSize: 12 }}
+              contentStyle={{ background: "hsl(220, 18%, 16%)", border: "1px solid hsl(220, 15%, 22%)", borderRadius: 8, color: "hsl(210, 20%, 90%)", fontSize: 13 }}
             />
-            <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={18}>
+            <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={24}>
               {data.map((_, i) => (
                 <Cell key={i} fill={COLORS[i % COLORS.length]} />
               ))}
@@ -41,16 +41,16 @@ export function StatusChart({ data, title, layout = "horizontal" }: StatusChartP
   }
 
   return (
-    <div className="rounded-lg bg-card border border-border p-5 animate-slide-up">
-      <h3 className="text-sm font-medium uppercase tracking-wider text-muted-foreground mb-4">{title}</h3>
-      <ResponsiveContainer width="100%" height={260}>
+    <div className="rounded-lg bg-card border border-border p-6 animate-slide-up">
+      <h3 className="text-sm xl:text-base font-medium uppercase tracking-wider text-muted-foreground mb-4">{title}</h3>
+      <ResponsiveContainer width="100%" height={340}>
         <BarChart data={data} margin={{ left: -10, right: 10, top: 0, bottom: 0 }}>
-          <XAxis dataKey="name" tick={{ fill: "hsl(210, 20%, 70%)", fontSize: 11 }} axisLine={false} tickLine={false} />
-          <YAxis tick={{ fill: "hsl(210, 20%, 55%)", fontSize: 11 }} axisLine={false} tickLine={false} />
+          <XAxis dataKey="name" tick={{ fill: "hsl(210, 20%, 70%)", fontSize: 13 }} axisLine={false} tickLine={false} />
+          <YAxis tick={{ fill: "hsl(210, 20%, 55%)", fontSize: 13 }} axisLine={false} tickLine={false} />
           <Tooltip
-            contentStyle={{ background: "hsl(220, 18%, 16%)", border: "1px solid hsl(220, 15%, 22%)", borderRadius: 8, color: "hsl(210, 20%, 90%)", fontSize: 12 }}
+            contentStyle={{ background: "hsl(220, 18%, 16%)", border: "1px solid hsl(220, 15%, 22%)", borderRadius: 8, color: "hsl(210, 20%, 90%)", fontSize: 13 }}
           />
-          <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={32}>
+          <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={40}>
             {data.map((_, i) => (
               <Cell key={i} fill={COLORS[i % COLORS.length]} />
             ))}
