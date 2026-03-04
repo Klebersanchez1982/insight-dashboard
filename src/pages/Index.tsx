@@ -4,7 +4,6 @@ import { StatusChart } from "@/components/StatusChart";
 import { RecentOSTable } from "@/components/RecentOSTable";
 import {
   osData,
-  getTechnicianGroups,
   getStatusLabCountData,
 } from "@/data/osData";
 
@@ -13,7 +12,6 @@ const Index = () => {
   const aguardando = osData.filter(os => os.statusLab.includes("AGUARDANDO")).length;
   const technicians = new Set(osData.map(os => os.tecnico)).size;
 
-  const techData = getTechnicianGroups(osData);
   const statusLabData = getStatusLabCountData(osData);
 
   return (
@@ -45,11 +43,8 @@ const Index = () => {
           <KpiCard title="Técnicos Ativos" value={technicians} icon={<Users className="h-6 w-6" />} subtitle="Profissionais atuando" />
         </div>
 
-        {/* Charts: OS por Técnico + Status Lab */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <StatusChart data={techData} title="Contagem de OS por Técnico" />
-          <StatusChart data={statusLabData} title="Status do Laboratório (Contagem)" layout="vertical" />
-        </div>
+        {/* Chart: Status Lab */}
+        <StatusChart data={statusLabData} title="Status do Laboratório (Contagem)" layout="vertical" />
 
         {/* Tabela: OS Aguardando Avaliação */}
         <RecentOSTable data={osData} />
