@@ -50,18 +50,20 @@ export function RecentOSTable({ data }: RecentOSTableProps) {
               <th className="text-left py-3 px-3 text-xs xl:text-sm font-medium text-muted-foreground uppercase tracking-wider">Descrição</th>
               <th className="text-left py-3 px-3 text-xs xl:text-sm font-medium text-muted-foreground uppercase tracking-wider">Nº Série</th>
               <th className="text-left py-3 px-3 text-xs xl:text-sm font-medium text-muted-foreground uppercase tracking-wider">Cliente</th>
+              <th className="text-left py-3 px-3 text-xs xl:text-sm font-medium text-muted-foreground uppercase tracking-wider">Cidade/UF</th>
             </tr>
           </thead>
           <tbody>
             {aguardando.map(os => (
-              <tr key={os.numero} className="border-b border-border/50 hover:bg-secondary/50 transition-colors">
+              <tr key={`${os.numero}-${os.seq}`} className="border-b border-border/50 hover:bg-secondary/50 transition-colors">
                 <td className="py-3 px-3 font-mono text-primary font-semibold">{os.numero}</td>
-                <td className="py-3 px-3 font-mono text-muted-foreground">{os.seq ?? "—"}</td>
+                <td className="py-3 px-3 font-mono text-muted-foreground">{os.seq || "—"}</td>
                 <td className="py-3 px-3">{statusBadge(os.statusOS)}</td>
                 <td className="py-3 px-3">{labBadge(os.statusLab)}</td>
                 <td className="py-3 px-3 text-foreground max-w-[300px] truncate">{os.descricao}</td>
-                <td className="py-3 px-3 font-mono text-muted-foreground text-xs xl:text-sm">{os.numSerie ?? "—"}</td>
+                <td className="py-3 px-3 font-mono text-muted-foreground text-xs xl:text-sm">{os.numSerie || "—"}</td>
                 <td className="py-3 px-3 text-muted-foreground max-w-[280px] truncate">{os.razaoSocial}</td>
+                <td className="py-3 px-3 text-muted-foreground text-xs xl:text-sm whitespace-nowrap">{os.cidade}{os.uf ? `/${os.uf}` : ""}</td>
               </tr>
             ))}
           </tbody>
