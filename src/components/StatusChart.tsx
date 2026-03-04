@@ -29,7 +29,7 @@ export function StatusChart({ data, title, layout = "horizontal" }: StatusChartP
             <Tooltip
               contentStyle={{ background: "hsl(220, 18%, 16%)", border: "1px solid hsl(220, 15%, 22%)", borderRadius: 8, color: "hsl(210, 20%, 90%)", fontSize: 13 }}
             />
-            <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={24}>
+            <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={24} label={{ position: "right", fill: "hsl(210, 20%, 80%)", fontSize: 13, fontWeight: 600 }}>
               {data.map((_, i) => (
                 <Cell key={i} fill={COLORS[i % COLORS.length]} />
               ))}
