@@ -27,7 +27,13 @@ function labBadge(status: string) {
 }
 
 export function RecentOSTable({ data }: RecentOSTableProps) {
-  const aguardando = data.filter(os => os.statusLab.includes("AGUARDANDO"));
+  const aguardando = data
+    .filter(os => os.statusLab.includes("AGUARDANDO"))
+    .sort((a, b) => {
+      const aUrgent = a.statusOS.includes("URGENTE") ? 0 : 1;
+      const bUrgent = b.statusOS.includes("URGENTE") ? 0 : 1;
+      return aUrgent - bUrgent;
+    });
 
   return (
     <div className="rounded-lg bg-card border border-border p-6 animate-slide-up">
