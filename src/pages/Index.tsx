@@ -83,6 +83,10 @@ const Index = () => {
               <KpiCard title="Aguardando Avaliação" value={aguardando} icon={<Wrench className="h-6 w-6" />} subtitle={`${total > 0 ? ((aguardando / total) * 100).toFixed(0) : 0}% do total`} />
             </div>
 
+            {/* Meta Mensal */}
+            {metaData && <MetaCard meta={metaData.meta} atual={metaData.atual} />}
+            </div>
+
             {/* Chart: Status Lab */}
             <StatusChart data={statusLabData} title="Status do Laboratório (Contagem)" layout="vertical" />
 
