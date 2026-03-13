@@ -14,11 +14,19 @@ import {
 import { useQuery } from "@tanstack/react-query";
 
 const Index = () => {
-  const { data: osData = [], isLoading, refetch, dataUpdatedAt } = useQuery<OSRecord[]>({
+  const { data: osData = [], isLoading, refetch: refetchOS, dataUpdatedAt } = useQuery<OSRecord[]>({
     queryKey: ["osData"],
     queryFn: fetchOSData,
-    refetchInterval: 5 * 60 * 1000, // auto-refresh every 5 min
+    refetchInterval: 5 * 60 * 1000,
   });
+
+  const { data: metaData, refetch: refetchMeta } = useQuery<MetaRecord>({
+    queryKey: ["metaData"],
+    queryFn: fetchMetaData,
+    refetchInterval: 5 * 60 * 1000,
+  });
+
+  const refetch = () => { refetchOS(); refetchMeta(); };
 
   const total = osData.length;
   const aguardando = osData.filter(os => os.statusLab.includes("AGUARDANDO")).length;
