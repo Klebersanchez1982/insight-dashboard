@@ -28,7 +28,7 @@ const SHEET_CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vQpza0h0T--mGQ1SdcS4bkHkPjAROf08dyweBAxJ1tACGGBH2EqGZsez4UUuDLCFNTdQ8J5ehpWIB9s/pub?output=csv";
 
 const META_CSV_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQpza0h0T--mGQ1SdcS4bkHkPjAROf08dyweBAxJ1tACGGBH2EqGZsez4UUuDLCFNTdQ8J5ehpWIB9s/pub?sheet=Meta&output=csv";
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQpza0h0T--mGQ1SdcS4bkHkPjAROf08dyweBAxJ1tACGGBH2EqGZsez4UUuDLCFNTdQ8J5ehpWIB9s/pub?gid=1972955498&single=true&output=csv";
 
 export interface MetaRecord {
   meta: number;
@@ -43,13 +43,15 @@ function parseNumber(str: string): number {
 export async function fetchMetaData(): Promise<MetaRecord> {
   const res = await fetch(META_CSV_URL);
   const text = await res.text();
+  console.log("META CSV raw:", text);
   const lines = text.split("\n").filter(l => l.trim());
   if (lines.length < 2) return { meta: 0, atual: 0 };
   const cols = parseCSVLine(lines[1]);
-  return {
-    meta: parseNumber(cols[0] ?? "0"),
-    atual: parseNumber(cols[1] ?? "0"),
-  };
+  console.log("META parsed cols:", cols);
+  const meta = parseNumber(cols[0] ?? "0");
+  const atual = parseNumber(cols[1] ?? "0");
+  console.log("META values:", { meta, atual, percent: meta > 0 ? (atual / meta * 100).toFixed(1) : 0 });
+  return { meta, atual };
 }
 
 function parseCSVLine(line: string): string[] {
