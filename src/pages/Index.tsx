@@ -1,4 +1,5 @@
-import { Wrench, ClipboardList, Zap, RefreshCw } from "lucide-react";
+import { Wrench, ClipboardList, RefreshCw } from "lucide-react";
+import logo from "@/assets/logo.png";
 import { KpiCard } from "@/components/KpiCard";
 import { StatusChart } from "@/components/StatusChart";
 import { RecentOSTable } from "@/components/RecentOSTable";
