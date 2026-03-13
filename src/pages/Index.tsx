@@ -85,7 +85,6 @@ const Index = () => {
 
             {/* Meta Mensal */}
             {metaData && <MetaCard meta={metaData.meta} atual={metaData.atual} />}
-            </div>
 
             {/* Chart: Status Lab */}
             <StatusChart data={statusLabData} title="Status do Laboratório (Contagem)" layout="vertical" />
