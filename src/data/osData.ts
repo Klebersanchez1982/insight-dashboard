@@ -27,6 +27,31 @@ export function getStatusLabCountData(data: OSRecord[]) {
 const SHEET_CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vQpza0h0T--mGQ1SdcS4bkHkPjAROf08dyweBAxJ1tACGGBH2EqGZsez4UUuDLCFNTdQ8J5ehpWIB9s/pub?output=csv";
 
+const META_CSV_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQpza0h0T--mGQ1SdcS4bkHkPjAROf08dyweBAxJ1tACGGBH2EqGZsez4UUuDLCFNTdQ8J5ehpWIB9s/pub?sheet=Meta&output=csv";
+
+export interface MetaRecord {
+  meta: number;
+  atual: number;
+}
+
+function parseNumber(str: string): number {
+  // handles "435.750,00" → 435750.00
+  return parseFloat(str.replace(/\./g, "").replace(",", ".")) || 0;
+}
+
+export async function fetchMetaData(): Promise<MetaRecord> {
+  const res = await fetch(META_CSV_URL);
+  const text = await res.text();
+  const lines = text.split("\n").filter(l => l.trim());
+  if (lines.length < 2) return { meta: 0, atual: 0 };
+  const cols = parseCSVLine(lines[1]);
+  return {
+    meta: parseNumber(cols[0] ?? "0"),
+    atual: parseNumber(cols[1] ?? "0"),
+  };
+}
+
 function parseCSVLine(line: string): string[] {
   const result: string[] = [];
   let current = "";

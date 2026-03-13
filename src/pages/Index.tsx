@@ -1,21 +1,32 @@
 import { Wrench, ClipboardList, RefreshCw } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { KpiCard } from "@/components/KpiCard";
+import { MetaCard } from "@/components/MetaCard";
 import { StatusChart } from "@/components/StatusChart";
 import { RecentOSTable } from "@/components/RecentOSTable";
 import {
   fetchOSData,
+  fetchMetaData,
   getStatusLabCountData,
   type OSRecord,
+  type MetaRecord,
 } from "@/data/osData";
 import { useQuery } from "@tanstack/react-query";
 
 const Index = () => {
-  const { data: osData = [], isLoading, refetch, dataUpdatedAt } = useQuery<OSRecord[]>({
+  const { data: osData = [], isLoading, refetch: refetchOS, dataUpdatedAt } = useQuery<OSRecord[]>({
     queryKey: ["osData"],
     queryFn: fetchOSData,
-    refetchInterval: 5 * 60 * 1000, // auto-refresh every 5 min
+    refetchInterval: 5 * 60 * 1000,
   });
+
+  const { data: metaData, refetch: refetchMeta } = useQuery<MetaRecord>({
+    queryKey: ["metaData"],
+    queryFn: fetchMetaData,
+    refetchInterval: 5 * 60 * 1000,
+  });
+
+  const refetch = () => { refetchOS(); refetchMeta(); };
 
   const total = osData.length;
   const aguardando = osData.filter(os => os.statusLab.includes("AGUARDANDO")).length;
@@ -71,6 +82,9 @@ const Index = () => {
               <KpiCard title="Total de OS" value={total} icon={<ClipboardList className="h-6 w-6" />} subtitle="Ordens ativas no sistema" />
               <KpiCard title="Aguardando Avaliação" value={aguardando} icon={<Wrench className="h-6 w-6" />} subtitle={`${total > 0 ? ((aguardando / total) * 100).toFixed(0) : 0}% do total`} />
             </div>
+
+            {/* Meta Mensal */}
+            {metaData && <MetaCard meta={metaData.meta} atual={metaData.atual} />}
 
             {/* Chart: Status Lab */}
             <StatusChart data={statusLabData} title="Status do Laboratório (Contagem)" layout="vertical" />
