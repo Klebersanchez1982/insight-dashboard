@@ -31,7 +31,9 @@ const Index = () => {
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-[1920px] mx-auto px-6 xl:px-10 py-4 flex items-center gap-3">
-          <img src={logo} alt="CNCShop - Grupo Manutex CNC" className="h-10" />
+          <div className="bg-white rounded-md px-3 py-1">
+            <img src={logo} alt="CNCShop - Grupo Manutex CNC" className="h-10" />
+          </div>
           <div>
             <h1 className="text-xl font-bold text-foreground tracking-tight">Laboratório Eletrônico</h1>
             <p className="text-sm text-muted-foreground">Dashboard de KPIs — Ordens de Serviço</p>
