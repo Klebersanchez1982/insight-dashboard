@@ -1,12 +1,15 @@
 import { Wrench, ClipboardList, RefreshCw } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { KpiCard } from "@/components/KpiCard";
+import { MetaCard } from "@/components/MetaCard";
 import { StatusChart } from "@/components/StatusChart";
 import { RecentOSTable } from "@/components/RecentOSTable";
 import {
   fetchOSData,
+  fetchMetaData,
   getStatusLabCountData,
   type OSRecord,
+  type MetaRecord,
 } from "@/data/osData";
 import { useQuery } from "@tanstack/react-query";
 
