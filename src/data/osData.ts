@@ -28,7 +28,7 @@ const SHEET_CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vQpza0h0T--mGQ1SdcS4bkHkPjAROf08dyweBAxJ1tACGGBH2EqGZsez4UUuDLCFNTdQ8J5ehpWIB9s/pub?output=csv";
 
 const META_CSV_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQpza0h0T--mGQ1SdcS4bkHkPjAROf08dyweBAxJ1tACGGBH2EqGZsez4UUuDLCFNTdQ8J5ehpWIB9s/pub?gid=1972955498&single=true&output=csv";
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQpza0h0T--mGQ1SdcS4bkHkPjAROf08dyweBAxJ1tACGGBH2EqGZsez4UUuDLCFNTdQ8J5ehpWIB9s/pub?gid=151603371&single=true&output=csv";
 
 export interface MetaRecord {
   meta: number;
