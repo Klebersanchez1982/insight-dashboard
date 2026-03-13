@@ -1,4 +1,5 @@
-import { Wrench, ClipboardList, Zap, RefreshCw } from "lucide-react";
+import { Wrench, ClipboardList, RefreshCw } from "lucide-react";
+import logo from "@/assets/logo.png";
 import { KpiCard } from "@/components/KpiCard";
 import { StatusChart } from "@/components/StatusChart";
 import { RecentOSTable } from "@/components/RecentOSTable";
@@ -30,9 +31,7 @@ const Index = () => {
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-[1920px] mx-auto px-6 xl:px-10 py-4 flex items-center gap-3">
-          <div className="p-2 rounded-md bg-primary/10">
-            <Zap className="h-6 w-6 text-primary" />
-          </div>
+          <img src={logo} alt="CNCShop - Grupo Manutex CNC" className="h-10" />
           <div>
             <h1 className="text-xl font-bold text-foreground tracking-tight">Laboratório Eletrônico</h1>
             <p className="text-sm text-muted-foreground">Dashboard de KPIs — Ordens de Serviço</p>
