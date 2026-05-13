@@ -19,6 +19,14 @@ const PROPOSTAS_CSV_URL =
 const METAS_CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vShyk8j-D4F4BDXa55igF-IPWJ6ckcgHX_0JL330WXvYf6eRpGsFD2yVfeocRQvYV7Ipe11Zx8jJV7x/pub?output=csv";
 
+const INFORMACOES_CSV_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vShyk8j-D4F4BDXa55igF-IPWJ6ckcgHX_0JL330WXvYf6eRpGsFD2yVfeocRQvYV7Ipe11Zx8jJV7x/pub?gid=419508041&single=true&output=csv";
+
+export interface InformacoesData {
+  importacoes: string[];
+  informacoes: string[];
+}
+
 function parseCSVLine(line: string): string[] {
   const result: string[] = [];
   let current = "";
@@ -80,6 +88,23 @@ export async function fetchMetasMensais(): Promise<MetaMensalRecord[]> {
       meta: parseNumber(c[2] ?? ""),
     };
   });
+}
+
+export async function fetchInformacoes(): Promise<InformacoesData> {
+  const res = await fetch(INFORMACOES_CSV_URL);
+  const text = await res.text();
+  const lines = text.split("\n");
+  // Row index: 0,1 -> A1/A2 e C2 (cabeçalhos); dados começam em row index 2 (linha 3)
+  const importacoes: string[] = [];
+  const informacoes: string[] = [];
+  for (let i = 2; i < lines.length; i++) {
+    const c = parseCSVLine(lines[i]);
+    const a = (c[0] ?? "").trim();
+    const cc = (c[2] ?? "").trim();
+    if (a) importacoes.push(a);
+    if (cc) informacoes.push(cc);
+  }
+  return { importacoes, informacoes };
 }
 
 const MESES = [

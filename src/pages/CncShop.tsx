@@ -1,16 +1,19 @@
-import { FileText, CheckCircle2, Send, RefreshCw } from "lucide-react";
+import { FileText, CheckCircle2, Send, RefreshCw, Package, Info } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "@/assets/logo.png";
 import { KpiCard } from "@/components/KpiCard";
 import { MetaRangeCard } from "@/components/MetaRangeCard";
+import { InfoListCard } from "@/components/InfoListCard";
 import { StatusChart } from "@/components/StatusChart";
 import {
   fetchPropostas,
   fetchMetasMensais,
+  fetchInformacoes,
   getMetaMesAtual,
   getStatusCounts,
   type PropostaRecord,
   type MetaMensalRecord,
+  type InformacoesData,
 } from "@/data/cncshopData";
 import { useQuery } from "@tanstack/react-query";
 
@@ -27,7 +30,13 @@ const CncShop = () => {
     refetchInterval: 5 * 60 * 1000,
   });
 
-  const refetch = () => { refetchP(); refetchM(); };
+  const { data: infos, refetch: refetchI } = useQuery<InformacoesData>({
+    queryKey: ["cncshop-informacoes"],
+    queryFn: fetchInformacoes,
+    refetchInterval: 5 * 60 * 1000,
+  });
+
+  const refetch = () => { refetchP(); refetchM(); refetchI(); };
 
   const propostasAbertas = propostas.filter(p => p.status === "ABERTO").length;
   const propostasAprovadas = propostas.filter(p => p.status === "PROPOSTA APROVADA").length;
@@ -78,11 +87,23 @@ const CncShop = () => {
               <KpiCard title="Enviadas ao Cliente" value={propostasEnviadas} icon={<Send className="h-6 w-6" />} subtitle="Aguardando retorno" />
             </div>
 
-            <MetaRangeCard
-              atual={metaAtual?.faturamento ?? 0}
-              metaMin={400000}
-              metaMax={800000}
-            />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <MetaRangeCard
+                atual={metaAtual?.faturamento ?? 0}
+                metaMin={400000}
+                metaMax={800000}
+              />
+              <InfoListCard
+                title="Importações"
+                items={infos?.importacoes ?? []}
+                icon={<Package className="h-6 w-6" />}
+              />
+              <InfoListCard
+                title="Informações"
+                items={infos?.informacoes ?? []}
+                icon={<Info className="h-6 w-6" />}
+              />
+            </div>
 
 
             <StatusChart data={statusData} title="Distribuição por Status (Contagem)" layout="vertical" />
