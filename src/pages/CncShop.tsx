@@ -1,16 +1,19 @@
-import { FileText, CheckCircle2, Send, RefreshCw } from "lucide-react";
+import { FileText, CheckCircle2, Send, RefreshCw, Package, Info } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "@/assets/logo.png";
 import { KpiCard } from "@/components/KpiCard";
 import { MetaRangeCard } from "@/components/MetaRangeCard";
+import { InfoListCard } from "@/components/InfoListCard";
 import { StatusChart } from "@/components/StatusChart";
 import {
   fetchPropostas,
   fetchMetasMensais,
+  fetchInformacoes,
   getMetaMesAtual,
   getStatusCounts,
   type PropostaRecord,
   type MetaMensalRecord,
+  type InformacoesData,
 } from "@/data/cncshopData";
 import { useQuery } from "@tanstack/react-query";
 
