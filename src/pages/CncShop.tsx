@@ -52,10 +52,6 @@ const CncShop = () => {
             <h1 className="text-xl font-bold text-foreground tracking-tight">CNCSHOP</h1>
             <p className="text-sm text-muted-foreground">Dashboard Comercial — Propostas e Pedidos</p>
           </div>
-          <nav className="ml-6 flex items-center gap-2 text-sm">
-            <Link to="/" className="px-3 py-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">Lab. Eletrônico</Link>
-            <Link to="/cncshop" className="px-3 py-1.5 rounded-md bg-secondary text-foreground">CNCShop</Link>
-          </nav>
           <div className="ml-auto flex items-center gap-3">
             <button
               onClick={() => refetch()}
