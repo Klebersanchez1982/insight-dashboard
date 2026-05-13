@@ -2,7 +2,7 @@ import { FileText, CheckCircle2, Send, ShoppingCart, RefreshCw } from "lucide-re
 import { Link } from "react-router-dom";
 import logo from "@/assets/logo.png";
 import { KpiCard } from "@/components/KpiCard";
-import { MetaCard } from "@/components/MetaCard";
+import { MetaRangeCard } from "@/components/MetaRangeCard";
 import { StatusChart } from "@/components/StatusChart";
 import {
   fetchPropostas,
