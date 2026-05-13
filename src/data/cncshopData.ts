@@ -90,6 +90,23 @@ export async function fetchMetasMensais(): Promise<MetaMensalRecord[]> {
   });
 }
 
+export async function fetchInformacoes(): Promise<InformacoesData> {
+  const res = await fetch(INFORMACOES_CSV_URL);
+  const text = await res.text();
+  const lines = text.split("\n");
+  // Row index: 0,1 -> A1/A2 e C2 (cabeçalhos); dados começam em row index 2 (linha 3)
+  const importacoes: string[] = [];
+  const informacoes: string[] = [];
+  for (let i = 2; i < lines.length; i++) {
+    const c = parseCSVLine(lines[i]);
+    const a = (c[0] ?? "").trim();
+    const cc = (c[2] ?? "").trim();
+    if (a) importacoes.push(a);
+    if (cc) informacoes.push(cc);
+  }
+  return { importacoes, informacoes };
+}
+
 const MESES = [
   "JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO",
   "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO",
