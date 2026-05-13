@@ -1,4 +1,4 @@
-import { FileText, CheckCircle2, Send, ShoppingCart, RefreshCw } from "lucide-react";
+import { FileText, CheckCircle2, Send, RefreshCw } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "@/assets/logo.png";
 import { KpiCard } from "@/components/KpiCard";
@@ -32,7 +32,6 @@ const CncShop = () => {
   const propostasAbertas = propostas.filter(p => p.status === "ABERTO").length;
   const propostasAprovadas = propostas.filter(p => p.status === "PROPOSTA APROVADA").length;
   const propostasEnviadas = propostas.filter(p => p.status === "PROPOSTA ENVIADA PARA O CLIENTE").length;
-  const pedidosAbertos = propostas.filter(p => p.ordemServico && p.ordemServico.trim() !== "").length;
 
   const statusData = getStatusCounts(propostas);
   const metaAtual = getMetaMesAtual(metas);
@@ -73,11 +72,10 @@ const CncShop = () => {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
               <KpiCard title="Propostas em Aberto" value={propostasAbertas} icon={<FileText className="h-6 w-6" />} subtitle="Status: Aberto" />
               <KpiCard title="Propostas Aprovadas" value={propostasAprovadas} icon={<CheckCircle2 className="h-6 w-6" />} subtitle="Aguardando pedido" />
               <KpiCard title="Enviadas ao Cliente" value={propostasEnviadas} icon={<Send className="h-6 w-6" />} subtitle="Aguardando retorno" />
-              <KpiCard title="Pedidos em Aberto" value={pedidosAbertos} icon={<ShoppingCart className="h-6 w-6" />} subtitle="Com OS gerada" />
             </div>
 
             <MetaRangeCard
