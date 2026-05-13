@@ -2,7 +2,7 @@ import { FileText, CheckCircle2, Send, ShoppingCart, RefreshCw } from "lucide-re
 import { Link } from "react-router-dom";
 import logo from "@/assets/logo.png";
 import { KpiCard } from "@/components/KpiCard";
-import { MetaCard } from "@/components/MetaCard";
+import { MetaRangeCard } from "@/components/MetaRangeCard";
 import { StatusChart } from "@/components/StatusChart";
 import {
   fetchPropostas,
@@ -84,13 +84,12 @@ const CncShop = () => {
               <KpiCard title="Pedidos em Aberto" value={pedidosAbertos} icon={<ShoppingCart className="h-6 w-6" />} subtitle="Com OS gerada" />
             </div>
 
-            {metaAtual && metaAtual.meta > 0 ? (
-              <MetaCard meta={metaAtual.meta} atual={metaAtual.faturamento} />
-            ) : (
-              <div className="rounded-lg bg-card border border-border p-6 text-sm text-muted-foreground">
-                Meta do mês atual ({metaAtual?.mes ?? "—"}) não definida na planilha.
-              </div>
-            )}
+            <MetaRangeCard
+              atual={metaAtual?.faturamento ?? 0}
+              metaMin={400000}
+              metaMax={800000}
+            />
+
 
             <StatusChart data={statusData} title="Distribuição por Status (Contagem)" layout="vertical" />
           </>
