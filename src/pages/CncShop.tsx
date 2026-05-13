@@ -30,7 +30,13 @@ const CncShop = () => {
     refetchInterval: 5 * 60 * 1000,
   });
 
-  const refetch = () => { refetchP(); refetchM(); };
+  const { data: infos, refetch: refetchI } = useQuery<InformacoesData>({
+    queryKey: ["cncshop-informacoes"],
+    queryFn: fetchInformacoes,
+    refetchInterval: 5 * 60 * 1000,
+  });
+
+  const refetch = () => { refetchP(); refetchM(); refetchI(); };
 
   const propostasAbertas = propostas.filter(p => p.status === "ABERTO").length;
   const propostasAprovadas = propostas.filter(p => p.status === "PROPOSTA APROVADA").length;
