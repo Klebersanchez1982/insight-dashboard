@@ -17,7 +17,7 @@ const PROPOSTAS_CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vRZGPdMEgzUiby-Xh8h7V1e4Dq5g5wcnztAFlHjsqWAC2Z9ysaEpW6046-f2FAKmGBkLSlTPfcYSEi1/pub?output=csv";
 
 const METAS_CSV_URL =
-  "https://docs.google.com/spreadsheets/d/1RB5PP1cxQcCjbGmbTYiAZcMxmMz9Ki2MQMJRbS4yA9I/export?format=csv&gid=479244642";
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vShyk8j-D4F4BDXa55igF-IPWJ6ckcgHX_0JL330WXvYf6eRpGsFD2yVfeocRQvYV7Ipe11Zx8jJV7x/pub?output=csv";
 
 function parseCSVLine(line: string): string[] {
   const result: string[] = [];
