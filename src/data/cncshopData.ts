@@ -19,6 +19,14 @@ const PROPOSTAS_CSV_URL =
 const METAS_CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vShyk8j-D4F4BDXa55igF-IPWJ6ckcgHX_0JL330WXvYf6eRpGsFD2yVfeocRQvYV7Ipe11Zx8jJV7x/pub?output=csv";
 
+const INFORMACOES_CSV_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vShyk8j-D4F4BDXa55igF-IPWJ6ckcgHX_0JL330WXvYf6eRpGsFD2yVfeocRQvYV7Ipe11Zx8jJV7x/pub?gid=419508041&single=true&output=csv";
+
+export interface InformacoesData {
+  importacoes: string[];
+  informacoes: string[];
+}
+
 function parseCSVLine(line: string): string[] {
   const result: string[] = [];
   let current = "";
