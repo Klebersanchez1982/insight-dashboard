@@ -19,13 +19,13 @@ export function InfoListCard({ title, items, icon, emptyLabel = "Sem registros" 
       </div>
       <div className="flex-1 pr-1">
         {items.length === 0 ? (
-          <p className="text-[14px] font-bold text-black italic">{emptyLabel}</p>
+          <p className="font-bold text-black italic text-lg">{emptyLabel}</p>
         ) : (
           <ul className="space-y-2">
             {items.map((item, i) => (
               <li
                 key={i}
-                className="text-[14px] font-bold text-black border-l-2 border-primary/40 pl-3 py-1 leading-snug whitespace-pre-wrap"
+                className="font-bold text-black border-l-2 border-primary/40 pl-3 py-1 leading-snug whitespace-pre-wrap text-lg"
               >
                 {item}
               </li>
