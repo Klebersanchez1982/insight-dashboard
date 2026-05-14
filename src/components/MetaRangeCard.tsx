@@ -24,10 +24,10 @@ export function MetaRangeCard({ atual, metaMin, metaMax }: MetaRangeCardProps) {
       <div className="absolute top-0 left-0 w-1 h-full bg-accent opacity-60" />
       <div className="flex items-start justify-between mb-6">
         <div className="space-y-1">
-          <p className="text-xs xl:text-sm font-medium uppercase tracking-wider text-muted-foreground">
+          <p className="xl:text-sm font-medium uppercase tracking-wider text-muted-foreground text-sm">
             Meta Mensal
           </p>
-          <p className="text-sm xl:text-base text-foreground">{getLabel()}</p>
+          <p className="xl:text-base text-foreground text-sm">{getLabel()}</p>
         </div>
         <div className="p-2 rounded-md bg-secondary text-accent">
           <Target className="h-6 w-6" />

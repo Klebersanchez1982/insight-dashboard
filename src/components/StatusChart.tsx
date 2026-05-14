@@ -21,7 +21,7 @@ export function StatusChart({ data, title, layout = "horizontal" }: StatusChartP
   if (layout === "vertical") {
     return (
       <div className="rounded-lg bg-card border border-border p-6 animate-slide-up flex flex-col h-full min-h-[280px]">
-        <h3 className="text-sm xl:text-base font-medium uppercase tracking-wider text-muted-foreground mb-4">{title}</h3>
+        <h3 className="xl:text-base font-medium uppercase tracking-wider text-muted-foreground mb-4 text-sm">{title}</h3>
         <div className="flex-1 min-h-0">
         <ResponsiveContainer width="100%" height="100%" minHeight={data.length * 36}>
           <BarChart data={data} layout="vertical" margin={{ left: 0, right: 40, top: 0, bottom: 0 }}>
@@ -44,7 +44,7 @@ export function StatusChart({ data, title, layout = "horizontal" }: StatusChartP
 
   return (
     <div className="rounded-lg bg-card border border-border p-6 animate-slide-up">
-      <h3 className="text-sm xl:text-base font-medium uppercase tracking-wider text-muted-foreground mb-4">{title}</h3>
+      <h3 className="xl:text-base font-medium uppercase tracking-wider text-muted-foreground mb-4 text-sm">{title}</h3>
       <ResponsiveContainer width="100%" height={340}>
         <BarChart data={data} margin={{ left: -10, right: 10, top: 0, bottom: 0 }}>
           <XAxis dataKey="name" tick={{ fill: "hsl(210, 20%, 70%)", fontSize: 13 }} axisLine={false} tickLine={false} />
