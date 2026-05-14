@@ -37,6 +37,7 @@ export function StatusChart({ data, title, layout = "horizontal" }: StatusChartP
             </Bar>
           </BarChart>
         </ResponsiveContainer>
+        </div>
       </div>
     );
   }
