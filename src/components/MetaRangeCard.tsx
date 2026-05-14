@@ -38,7 +38,7 @@ export function MetaRangeCard({ atual, metaMin, metaMax }: MetaRangeCardProps) {
         <div>
           <div className="flex justify-between text-xs xl:text-sm mb-2">
             <span className="text-muted-foreground uppercase tracking-wider">Meta Mínima</span>
-            <span className="font-mono font-bold text-foreground">{pctMin.toFixed(1)}%</span>
+            <span className="font-mono font-bold text-foreground text-2xl">{pctMin.toFixed(1)}%</span>
           </div>
           <div className="w-full bg-secondary rounded-full h-3 overflow-hidden">
             <div
@@ -51,7 +51,7 @@ export function MetaRangeCard({ atual, metaMin, metaMax }: MetaRangeCardProps) {
         <div>
           <div className="flex justify-between text-xs xl:text-sm mb-2">
             <span className="text-muted-foreground uppercase tracking-wider">Meta Máxima</span>
-            <span className="font-mono font-bold text-foreground">{pctMax.toFixed(1)}%</span>
+            <span className="font-mono font-bold text-foreground text-2xl">{pctMax.toFixed(1)}%</span>
           </div>
           <div className="w-full bg-secondary rounded-full h-3 overflow-hidden">
             <div

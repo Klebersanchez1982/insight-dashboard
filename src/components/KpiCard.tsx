@@ -15,7 +15,7 @@ export function KpiCard({ title, value, icon, subtitle, accentColor = "primary" 
       <div className="flex items-start justify-between">
         <div className="space-y-1">
           <p className="text-xs xl:text-sm font-medium uppercase tracking-wider text-muted-foreground">{title}</p>
-          <p className="text-3xl xl:text-5xl font-bold font-mono text-foreground">{value}</p>
+          <p className="xl:text-5xl font-bold font-mono text-foreground text-4xl">{value}</p>
           {subtitle && <p className="text-xs xl:text-sm text-muted-foreground">{subtitle}</p>}
         </div>
         <div className="p-2 rounded-md bg-secondary text-primary">
