@@ -24,13 +24,13 @@ export function StatusChart({ data, title, layout = "horizontal" }: StatusChartP
         <h3 className="text-sm xl:text-base font-medium uppercase tracking-wider text-muted-foreground mb-4">{title}</h3>
         <div className="flex-1 min-h-0">
         <ResponsiveContainer width="100%" height="100%" minHeight={data.length * 36}>
-          <BarChart data={data} layout="vertical" margin={{ left: 0, right: 16, top: 0, bottom: 0 }}>
-            <XAxis type="number" hide />
+          <BarChart data={data} layout="vertical" margin={{ left: 0, right: 40, top: 0, bottom: 0 }}>
+            <XAxis type="number" hide domain={[0, (dataMax: number) => dataMax * 1.15]} />
             <YAxis type="category" dataKey="name" width={180} tick={{ fill: "hsl(210, 20%, 70%)", fontSize: 13 }} axisLine={false} tickLine={false} />
             <Tooltip
               contentStyle={{ background: "hsl(220, 18%, 16%)", border: "1px solid hsl(220, 15%, 22%)", borderRadius: 8, color: "hsl(210, 20%, 90%)", fontSize: 13 }}
             />
-            <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={24} label={{ position: "right", fill: "hsl(210, 20%, 80%)", fontSize: 13, fontWeight: 600 }}>
+            <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={24} label={{ position: "right", fill: "hsl(210, 20%, 95%)", fontSize: 18, fontWeight: 800 }}>
               {data.map((_, i) => (
                 <Cell key={i} fill={COLORS[i % COLORS.length]} />
               ))}
