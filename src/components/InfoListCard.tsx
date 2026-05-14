@@ -17,7 +17,7 @@ export function InfoListCard({ title, items, icon, emptyLabel = "Sem registros" 
         </p>
         <div className="p-2 rounded-md bg-secondary text-primary">{icon}</div>
       </div>
-      <div className="flex-1 overflow-y-auto max-h-[220px] pr-1">
+      <div className="flex-1 pr-1">
         {items.length === 0 ? (
           <p className="text-[14px] font-bold text-black italic">{emptyLabel}</p>
         ) : (
