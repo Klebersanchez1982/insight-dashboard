@@ -87,12 +87,17 @@ const CncShop = () => {
               <KpiCard title="Enviadas ao Cliente" value={propostasEnviadas} icon={<Send className="h-6 w-6" />} subtitle="Aguardando retorno" />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <MetaRangeCard
-                atual={metaAtual?.faturamento ?? 0}
-                metaMin={400000}
-                metaMax={800000}
-              />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+              <div className="flex flex-col gap-6">
+                <MetaRangeCard
+                  atual={metaAtual?.faturamento ?? 0}
+                  metaMin={400000}
+                  metaMax={800000}
+                />
+                <div className="flex-1 min-h-[280px]">
+                  <StatusChart data={statusData} title="Distribuição por Status (Contagem)" layout="vertical" />
+                </div>
+              </div>
               <InfoListCard
                 title="Importações"
                 items={infos?.importacoes ?? []}
@@ -105,8 +110,6 @@ const CncShop = () => {
               />
             </div>
 
-
-            <StatusChart data={statusData} title="Distribuição por Status (Contagem)" layout="vertical" />
           </>
         )}
       </main>
