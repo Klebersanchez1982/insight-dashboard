@@ -20,9 +20,10 @@ interface StatusChartProps {
 export function StatusChart({ data, title, layout = "horizontal" }: StatusChartProps) {
   if (layout === "vertical") {
     return (
-      <div className="rounded-lg bg-card border border-border p-6 animate-slide-up">
+      <div className="rounded-lg bg-card border border-border p-6 animate-slide-up flex flex-col h-full min-h-[280px]">
         <h3 className="text-sm xl:text-base font-medium uppercase tracking-wider text-muted-foreground mb-4">{title}</h3>
-        <ResponsiveContainer width="100%" height={data.length * 44 + 20}>
+        <div className="flex-1 min-h-0">
+        <ResponsiveContainer width="100%" height="100%" minHeight={data.length * 36}>
           <BarChart data={data} layout="vertical" margin={{ left: 0, right: 16, top: 0, bottom: 0 }}>
             <XAxis type="number" hide />
             <YAxis type="category" dataKey="name" width={180} tick={{ fill: "hsl(210, 20%, 70%)", fontSize: 13 }} axisLine={false} tickLine={false} />
