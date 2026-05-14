@@ -9,23 +9,23 @@ interface InfoListCardProps {
 
 export function InfoListCard({ title, items, icon, emptyLabel = "Sem registros" }: InfoListCardProps) {
   return (
-    <div className="relative overflow-hidden rounded-lg bg-card border border-border p-5 xl:p-6 animate-slide-up hover:border-primary/30 transition-colors flex flex-col">
+    <div className="relative overflow-hidden rounded-lg bg-white border border-border p-5 xl:p-6 animate-slide-up hover:border-primary/30 transition-colors flex flex-col">
       <div className="absolute top-0 left-0 w-1 h-full bg-primary opacity-60" />
       <div className="flex items-center justify-between mb-4">
-        <p className="text-xs xl:text-sm font-medium uppercase tracking-wider text-muted-foreground">
+        <p className="text-xs xl:text-sm font-bold uppercase tracking-wider text-black">
           {title}
         </p>
         <div className="p-2 rounded-md bg-secondary text-primary">{icon}</div>
       </div>
       <div className="flex-1 overflow-y-auto max-h-[220px] pr-1">
         {items.length === 0 ? (
-          <p className="text-sm text-muted-foreground italic">{emptyLabel}</p>
+          <p className="text-[14px] font-bold text-black italic">{emptyLabel}</p>
         ) : (
           <ul className="space-y-2">
             {items.map((item, i) => (
               <li
                 key={i}
-                className="text-sm xl:text-base text-foreground border-l-2 border-primary/40 pl-3 py-1 leading-snug whitespace-pre-wrap"
+                className="text-[14px] font-bold text-black border-l-2 border-primary/40 pl-3 py-1 leading-snug whitespace-pre-wrap"
               >
                 {item}
               </li>
