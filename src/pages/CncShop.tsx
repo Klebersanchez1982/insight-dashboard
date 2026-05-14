@@ -57,8 +57,8 @@ const CncShop = () => {
             <img src={logo} alt="CNCShop - Grupo Manutex CNC" className="h-10" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-foreground tracking-tight">CNCSHOP</h1>
-            <p className="text-sm text-muted-foreground">Dashboard Comercial — Propostas e Pedidos</p>
+            <h1 className="font-bold text-foreground tracking-tight text-3xl">CNCSHOP</h1>
+            <p className="text-muted-foreground text-base">Dashboard Comercial — Propostas e Pedidos</p>
           </div>
           <div className="ml-auto flex items-center gap-3">
             <button
@@ -68,7 +68,7 @@ const CncShop = () => {
               <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
               <span className="hidden sm:inline">Atualizar</span>
             </button>
-            <span className="text-xs text-muted-foreground">Últ. atualização: {lastUpdate}</span>
+            <span className="text-muted-foreground text-sm">Últ. atualização: {lastUpdate}</span>
           </div>
         </div>
       </header>
