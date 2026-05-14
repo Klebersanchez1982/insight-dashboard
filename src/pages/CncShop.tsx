@@ -99,7 +99,7 @@ const CncShop = () => {
                 icon={<Package className="h-6 w-6" />}
               />
               <InfoListCard
-                title="Informações"
+                title="​pendências "
                 items={infos?.informacoes ?? []}
                 icon={<Info className="h-6 w-6" />}
               />
