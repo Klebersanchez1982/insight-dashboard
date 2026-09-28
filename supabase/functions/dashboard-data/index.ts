@@ -134,6 +134,7 @@ Deno.serve(async (req) => {
     return json(body);
   } catch (e) {
     console.error(e);
+    if (cache) return json(cache.body);
     return json({ error: "Falha ao carregar dados" }, 500);
   }
 });
