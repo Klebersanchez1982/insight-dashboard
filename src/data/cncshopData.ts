@@ -1,7 +1,13 @@
 import { supabase } from "@/integrations/supabase/client";
 
 export interface DashboardData {
-  kpis: { abertas: number; pedidosAbertos: number; enviadas: number };
+  kpis: {
+    abertas: number;
+    pedidosMatriz: number;
+    pedidosEletronica: number;
+    pedidosFilial: number;
+  };
+
   statusCounts: { name: string; value: number }[];
   metaPctMin: number;
   importacoes: string[];

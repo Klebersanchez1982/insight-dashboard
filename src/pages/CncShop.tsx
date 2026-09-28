@@ -1,4 +1,4 @@
-import { FileText, ShoppingCart, Send, RefreshCw, Package, Info, ShieldX } from "lucide-react";
+import { FileText, ShoppingCart, RefreshCw, Package, Info, ShieldX } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { KpiCard } from "@/components/KpiCard";
 import { MetaRangeCard } from "@/components/MetaRangeCard";
@@ -28,8 +28,10 @@ const CncShop = () => {
   }
 
   const propostasAbertas = data?.kpis.abertas ?? 0;
-  const pedidosAbertos = data?.kpis.pedidosAbertos ?? 0;
-  const propostasEnviadas = data?.kpis.enviadas ?? 0;
+  const pedidosMatriz = data?.kpis.pedidosMatriz ?? 0;
+  const pedidosEletronica = data?.kpis.pedidosEletronica ?? 0;
+  const pedidosFilial = data?.kpis.pedidosFilial ?? 0;
+
   const statusData = data?.statusCounts ?? [];
   const infos = { importacoes: data?.importacoes ?? [], informacoes: data?.pendencias ?? [] };
   const metaAtual = { faturamento: ((data?.metaPctMin ?? 0) / 100) * 400000 };
@@ -75,11 +77,13 @@ const CncShop = () => {
                 Não foi possível carregar os dados agora. Nova tentativa automática em instantes.
               </div>
             )}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-              <KpiCard title="Propostas Comerciais em Aberto" value={propostasAbertas} icon={<FileText className="h-6 w-6" />} subtitle="Status: Aberto" />
-              <KpiCard title="Pedidos de Venda em Aberto" value={pedidosAbertos} icon={<ShoppingCart className="h-6 w-6" />} subtitle="Status: Em Aberto" />
-              <KpiCard title="Enviadas ao Cliente" value={propostasEnviadas} icon={<Send className="h-6 w-6" />} subtitle="Aguardando retorno" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+              <KpiCard title="Propostas Comerciais em Aberto" value={propostasAbertas} icon={<FileText className="h-6 w-6" />} subtitle="Todas as unidades" />
+              <KpiCard title="Pedidos de Venda — Matriz" value={pedidosMatriz} icon={<ShoppingCart className="h-6 w-6" />} subtitle="Status: Em Aberto" />
+              <KpiCard title="Pedidos de Venda — Eletrônica" value={pedidosEletronica} icon={<ShoppingCart className="h-6 w-6" />} subtitle="Status: Em Aberto" />
+              <KpiCard title="Pedidos de Venda — Filial" value={pedidosFilial} icon={<ShoppingCart className="h-6 w-6" />} subtitle="Status: Em Aberto" />
             </div>
+
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
               <div className="flex flex-col gap-6">

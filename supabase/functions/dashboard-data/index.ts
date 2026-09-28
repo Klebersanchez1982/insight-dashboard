@@ -27,20 +27,30 @@ async function batchGet(id: string, ranges: string[], render = "FORMATTED_VALUE"
   const connectionKey = Deno.env.get("GOOGLE_SHEETS_API_KEY");
   if (!connectionKey) throw new Error("Conexão com Google Planilhas não configurada");
   const qs = ranges.map((r) => `ranges=${encodeURIComponent(r)}`).join("&");
-  const res = await fetch(`${GATEWAY}/${id}/values:batchGet?${qs}&valueRenderOption=${render}`, {
-    headers: {
-      Authorization: `Bearer ${Deno.env.get("LOVABLE_API_KEY")}`,
-      "X-Connection-Api-Key": connectionKey,
-    },
-  });
-  if (!res.ok) throw new Error(`Sheets [${res.status}]: ${await res.text()}`);
-  const data = await res.json();
-  return (data.valueRanges ?? []).map((v: { values?: string[][] }) => v.values ?? []);
+  const url = `${GATEWAY}/${id}/values:batchGet?${qs}&valueRenderOption=${render}`;
+  let lastErr = "";
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const res = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${Deno.env.get("LOVABLE_API_KEY")}`,
+        "X-Connection-Api-Key": connectionKey,
+      },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      return (data.valueRanges ?? []).map((v: { values?: string[][] }) => v.values ?? []);
+    }
+    lastErr = `Sheets [${res.status}]: ${await res.text()}`;
+    if (res.status !== 429 && res.status < 500) break;
+    await new Promise((r) => setTimeout(r, 1200 * (attempt + 1)));
+  }
+  throw new Error(lastErr);
 }
 
 const UNIDADES = ["MATRIZ", "ELETRONICA", "FILIAL"];
-const CACHE_MS = 60_000;
+const CACHE_MS = 5 * 60_000;
 let cache: { at: number; body: unknown } | null = null;
+
 
 function toNumber(v: unknown): number {
   if (typeof v === "number") return v;
@@ -57,18 +67,19 @@ Deno.serve(async (req) => {
   if (cache && Date.now() - cache.at < CACHE_MS) return json(cache.body);
 
   try {
-    const [propRanges, fatRanges, infoRanges] = await Promise.all([
+    const [propRanges, fatRanges] = await Promise.all([
       batchGet(PROPOSTAS_ID, [
         ...UNIDADES.map((u) => `Proposta_${u}!A2:G`),
         ...UNIDADES.map((u) => `Pedido_${u}!A2:B`),
       ]),
-      batchGet(FATURAMENTO_ID, ["'ANO 2026'!A2:C"], "UNFORMATTED_VALUE"),
-      batchGet(FATURAMENTO_ID, ["INFORMACOES!A3:C"]),
+      batchGet(FATURAMENTO_ID, ["'ANO 2026'!A2:C", "INFORMACOES!A3:C"]),
     ]);
     const propostas = propRanges.slice(0, UNIDADES.length).flat();
-    const pedidos = propRanges.slice(UNIDADES.length).flat();
+    const pedidosPorUnidade = propRanges.slice(UNIDADES.length);
+
     const ano = fatRanges[0] ?? [];
-    const info = infoRanges[0] ?? [];
+    const info = fatRanges[1] ?? [];
+
 
     const counts: Record<string, number> = {};
     const commercialCounts: Record<string, number> = {};
@@ -84,9 +95,14 @@ Deno.serve(async (req) => {
     const statusCounts = Object.entries(counts)
       .map(([name, value]) => ({ name, value }))
       .sort((a, b) => b.value - a.value);
-    const pedidosAbertos = pedidos.filter((r) =>
-      String(r[1] ?? "").toUpperCase().trim() === "EM ABERTO"
-    ).length;
+    const contarAbertos = (rows: string[][]) =>
+      rows.filter((r) => String(r[1] ?? "").toUpperCase().trim() === "EM ABERTO").length;
+    const pedidos = {
+      matriz: contarAbertos(pedidosPorUnidade[0] ?? []),
+      eletronica: contarAbertos(pedidosPorUnidade[1] ?? []),
+      filial: contarAbertos(pedidosPorUnidade[2] ?? []),
+    };
+
 
     const mesAtual = MESES[new Date(Date.now() - 3 * 3600 * 1000).getUTCMonth()];
     const row = ano.find((r) => String(r[0] ?? "").toUpperCase().trim() === mesAtual);
@@ -104,9 +120,11 @@ Deno.serve(async (req) => {
     const body = {
       kpis: {
         abertas: commercialCounts["ABERTO"] ?? 0,
-        pedidosAbertos,
-        enviadas: commercialCounts["PROPOSTA ENVIADA PARA O CLIENTE"] ?? 0,
+        pedidosMatriz: pedidos.matriz,
+        pedidosEletronica: pedidos.eletronica,
+        pedidosFilial: pedidos.filial,
       },
+
       statusCounts,
       metaPctMin: Math.round((fat / META_MIN) * 1000) / 10,
       importacoes,
@@ -116,6 +134,7 @@ Deno.serve(async (req) => {
     return json(body);
   } catch (e) {
     console.error(e);
+    if (cache) return json(cache.body);
     return json({ error: "Falha ao carregar dados" }, 500);
   }
 });
