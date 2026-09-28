@@ -101,7 +101,7 @@ Deno.serve(async (req) => {
       if (c) pendencias.push(c);
     }
 
-    return json({
+    const body = {
       kpis: {
         abertas: commercialCounts["ABERTO"] ?? 0,
         pedidosAbertos,
@@ -111,7 +111,9 @@ Deno.serve(async (req) => {
       metaPctMin: Math.round((fat / META_MIN) * 1000) / 10,
       importacoes,
       pendencias,
-    });
+    };
+    cache = { at: Date.now(), body };
+    return json(body);
   } catch (e) {
     console.error(e);
     return json({ error: "Falha ao carregar dados" }, 500);
