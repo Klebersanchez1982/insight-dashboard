@@ -81,8 +81,8 @@ export function StatusChart({ data, title, layout = "horizontal" }: StatusChartP
             contentStyle={{ background: "hsl(220, 18%, 16%)", border: "1px solid hsl(220, 15%, 22%)", borderRadius: 8, color: "hsl(210, 20%, 90%)", fontSize: 13 }}
           />
           <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={40}>
-            {data.map((_, i) => (
-              <Cell key={i} fill={semanticColor(_.name, i)} />
+            {data.map((d, i) => (
+              <Cell key={i} fill={semanticColor(d.name, i)} />
             ))}
           </Bar>
         </BarChart>
