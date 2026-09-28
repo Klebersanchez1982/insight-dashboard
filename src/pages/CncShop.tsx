@@ -71,7 +71,7 @@ const CncShop = () => {
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-              <KpiCard title="Propostas em Aberto" value={propostasAbertas} icon={<FileText className="h-6 w-6" />} subtitle="Status: Aberto" />
+              <KpiCard title="Propostas Comerciais em Aberto" value={propostasAbertas} icon={<FileText className="h-6 w-6" />} subtitle="Status: Aberto" />
               <KpiCard title="Pedidos de Venda em Aberto" value={pedidosAbertos} icon={<ShoppingCart className="h-6 w-6" />} subtitle="Status: Em Aberto" />
               <KpiCard title="Enviadas ao Cliente" value={propostasEnviadas} icon={<Send className="h-6 w-6" />} subtitle="Aguardando retorno" />
             </div>
