@@ -167,11 +167,12 @@ Deno.serve(async (req) => {
       pendencias: fatOk ? pendencias : (prev?.pendencias ?? []),
       parcial: !propOk || !fatOk,
     };
-    if (propOk && fatOk) cache = { at: Date.now(), body };
+    if (propOk && fatOk) { cache = { at: Date.now(), body }; await saveStored(body); }
     return json(body);
   } catch (e) {
     console.error(e);
-    if (cache) return json(cache.body);
-    return json({ error: "Falha ao carregar dados" }, 500);
+    const stored = cache ?? (await loadStored());
+    if (stored) return json({ ...(stored.body as Record<string, unknown>), parcial: true });
+    return json({ kpis: { abertas: 0, pedidosMatriz: 0, pedidosEletronica: 0, pedidosFilial: 0 }, statusCounts: [], metaPctMin: 0, importacoes: [], pendencias: [], parcial: true });
   }
 });
