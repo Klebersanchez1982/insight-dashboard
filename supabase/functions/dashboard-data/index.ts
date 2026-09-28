@@ -27,20 +27,30 @@ async function batchGet(id: string, ranges: string[], render = "FORMATTED_VALUE"
   const connectionKey = Deno.env.get("GOOGLE_SHEETS_API_KEY");
   if (!connectionKey) throw new Error("Conexão com Google Planilhas não configurada");
   const qs = ranges.map((r) => `ranges=${encodeURIComponent(r)}`).join("&");
-  const res = await fetch(`${GATEWAY}/${id}/values:batchGet?${qs}&valueRenderOption=${render}`, {
-    headers: {
-      Authorization: `Bearer ${Deno.env.get("LOVABLE_API_KEY")}`,
-      "X-Connection-Api-Key": connectionKey,
-    },
-  });
-  if (!res.ok) throw new Error(`Sheets [${res.status}]: ${await res.text()}`);
-  const data = await res.json();
-  return (data.valueRanges ?? []).map((v: { values?: string[][] }) => v.values ?? []);
+  const url = `${GATEWAY}/${id}/values:batchGet?${qs}&valueRenderOption=${render}`;
+  let lastErr = "";
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const res = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${Deno.env.get("LOVABLE_API_KEY")}`,
+        "X-Connection-Api-Key": connectionKey,
+      },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      return (data.valueRanges ?? []).map((v: { values?: string[][] }) => v.values ?? []);
+    }
+    lastErr = `Sheets [${res.status}]: ${await res.text()}`;
+    if (res.status !== 429 && res.status < 500) break;
+    await new Promise((r) => setTimeout(r, 1200 * (attempt + 1)));
+  }
+  throw new Error(lastErr);
 }
 
 const UNIDADES = ["MATRIZ", "ELETRONICA", "FILIAL"];
-const CACHE_MS = 60_000;
+const CACHE_MS = 5 * 60_000;
 let cache: { at: number; body: unknown } | null = null;
+
 
 function toNumber(v: unknown): number {
   if (typeof v === "number") return v;
