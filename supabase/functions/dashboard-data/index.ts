@@ -67,13 +67,23 @@ Deno.serve(async (req) => {
   if (cache && Date.now() - cache.at < CACHE_MS) return json(cache.body);
 
   try {
-    const [propRanges, fatRanges] = await Promise.all([
+    const [propRes, fatRes] = await Promise.allSettled([
       batchGet(PROPOSTAS_ID, [
         ...UNIDADES.map((u) => `Proposta_${u}!A2:G`),
         ...UNIDADES.map((u) => `Pedido_${u}!A2:B`),
       ]),
       batchGet(FATURAMENTO_ID, ["'ANO 2026'!A2:C", "INFORMACOES!A3:C"]),
     ]);
+
+    if (propRes.status === "rejected" && fatRes.status === "rejected") {
+      throw propRes.reason;
+    }
+    if (propRes.status === "rejected") console.error("propostas:", propRes.reason);
+    if (fatRes.status === "rejected") console.error("faturamento:", fatRes.reason);
+
+    const propRanges = propRes.status === "fulfilled" ? propRes.value : [];
+    const fatRanges = fatRes.status === "fulfilled" ? fatRes.value : [];
+
     const propostas = propRanges.slice(0, UNIDADES.length).flat();
     const pedidosPorUnidade = propRanges.slice(UNIDADES.length);
 
