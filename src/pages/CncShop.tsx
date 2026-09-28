@@ -1,49 +1,38 @@
-import { FileText, CheckCircle2, Send, RefreshCw, Package, Info } from "lucide-react";
-import { Link } from "react-router-dom";
+import { FileText, CheckCircle2, Send, RefreshCw, Package, Info, ShieldX } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { KpiCard } from "@/components/KpiCard";
 import { MetaRangeCard } from "@/components/MetaRangeCard";
 import { InfoListCard } from "@/components/InfoListCard";
 import { StatusChart } from "@/components/StatusChart";
-import {
-  fetchPropostas,
-  fetchMetasMensais,
-  fetchInformacoes,
-  getMetaMesAtual,
-  getStatusCounts,
-  type PropostaRecord,
-  type MetaMensalRecord,
-  type InformacoesData,
-} from "@/data/cncshopData";
+import { fetchDashboard, AccessDeniedError, type DashboardData } from "@/data/cncshopData";
 import { useQuery } from "@tanstack/react-query";
 
 const CncShop = () => {
-  const { data: propostas = [], isLoading, refetch: refetchP, dataUpdatedAt } = useQuery<PropostaRecord[]>({
-    queryKey: ["cncshop-propostas"],
-    queryFn: fetchPropostas,
+  const { data, isLoading, error, refetch, dataUpdatedAt } = useQuery<DashboardData>({
+    queryKey: ["cncshop-dashboard"],
+    queryFn: fetchDashboard,
     refetchInterval: 5 * 60 * 1000,
+    retry: (count, err) => !(err instanceof AccessDeniedError) && count < 2,
   });
 
-  const { data: metas = [], refetch: refetchM } = useQuery<MetaMensalRecord[]>({
-    queryKey: ["cncshop-metas"],
-    queryFn: fetchMetasMensais,
-    refetchInterval: 5 * 60 * 1000,
-  });
+  if (error instanceof AccessDeniedError) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <div className="w-full max-w-sm bg-card border border-border rounded-lg p-8 text-center space-y-4">
+          <ShieldX className="h-10 w-10 text-destructive mx-auto" />
+          <h1 className="text-xl font-bold text-foreground">Acesso não autorizado</h1>
+          <p className="text-sm text-muted-foreground">Este dashboard só pode ser acessado a partir da rede autorizada.</p>
+        </div>
+      </div>
+    );
+  }
 
-  const { data: infos, refetch: refetchI } = useQuery<InformacoesData>({
-    queryKey: ["cncshop-informacoes"],
-    queryFn: fetchInformacoes,
-    refetchInterval: 5 * 60 * 1000,
-  });
-
-  const refetch = () => { refetchP(); refetchM(); refetchI(); };
-
-  const propostasAbertas = propostas.filter(p => p.status === "ABERTO").length;
-  const propostasAprovadas = propostas.filter(p => p.status === "PROPOSTA APROVADA").length;
-  const propostasEnviadas = propostas.filter(p => p.status === "PROPOSTA ENVIADA PARA O CLIENTE").length;
-
-  const statusData = getStatusCounts(propostas);
-  const metaAtual = getMetaMesAtual(metas);
+  const propostasAbertas = data?.kpis.abertas ?? 0;
+  const propostasAprovadas = data?.kpis.aprovadas ?? 0;
+  const propostasEnviadas = data?.kpis.enviadas ?? 0;
+  const statusData = data?.statusCounts ?? [];
+  const infos = { importacoes: data?.importacoes ?? [], informacoes: data?.pendencias ?? [] };
+  const metaAtual = { faturamento: ((data?.metaPctMin ?? 0) / 100) * 400000 };
 
   const lastUpdate = dataUpdatedAt
     ? new Date(dataUpdatedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
