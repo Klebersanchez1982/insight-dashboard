@@ -1,0 +1,1 @@
+- Dashboard data is read server-side by the dashboard-data function (Google Sheets connector) and returns only aggregates, with the IP allowlist enforced there — keeps raw sheet values and links out of the browser.
