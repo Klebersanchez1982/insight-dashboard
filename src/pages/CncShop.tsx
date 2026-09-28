@@ -1,4 +1,4 @@
-import { FileText, ShoppingCart, Send, RefreshCw, Package, Info, ShieldX } from "lucide-react";
+import { FileText, ShoppingCart, RefreshCw, Package, Info, ShieldX } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { KpiCard } from "@/components/KpiCard";
 import { MetaRangeCard } from "@/components/MetaRangeCard";
