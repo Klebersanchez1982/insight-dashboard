@@ -93,7 +93,7 @@ const CncShop = () => {
                   metaMax={800000}
                 />
                 <div className="flex-1 min-h-[280px]">
-                  <StatusChart data={statusData} title="Distribuição por Status (Contagem)" layout="vertical" />
+                  <StatusChart data={statusData} title="Distribuição por Status — Equipe Comercial" layout="vertical" />
                 </div>
               </div>
               <InfoListCard
