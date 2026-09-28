@@ -67,13 +67,23 @@ Deno.serve(async (req) => {
   if (cache && Date.now() - cache.at < CACHE_MS) return json(cache.body);
 
   try {
-    const [propRanges, fatRanges] = await Promise.all([
+    const [propRes, fatRes] = await Promise.allSettled([
       batchGet(PROPOSTAS_ID, [
         ...UNIDADES.map((u) => `Proposta_${u}!A2:G`),
         ...UNIDADES.map((u) => `Pedido_${u}!A2:B`),
       ]),
       batchGet(FATURAMENTO_ID, ["'ANO 2026'!A2:C", "INFORMACOES!A3:C"]),
     ]);
+
+    if (propRes.status === "rejected" && fatRes.status === "rejected") {
+      throw propRes.reason;
+    }
+    if (propRes.status === "rejected") console.error("propostas:", propRes.reason);
+    if (fatRes.status === "rejected") console.error("faturamento:", fatRes.reason);
+
+    const propRanges = propRes.status === "fulfilled" ? propRes.value : [];
+    const fatRanges = fatRes.status === "fulfilled" ? fatRes.value : [];
+
     const propostas = propRanges.slice(0, UNIDADES.length).flat();
     const pedidosPorUnidade = propRanges.slice(UNIDADES.length);
 
@@ -92,7 +102,7 @@ Deno.serve(async (req) => {
         commercialCounts[s] = (commercialCounts[s] || 0) + 1;
       }
     }
-    const statusCounts = Object.entries(counts)
+    const statusCounts = Object.entries(commercialCounts)
       .map(([name, value]) => ({ name, value }))
       .sort((a, b) => b.value - a.value);
     const contarAbertos = (rows: string[][]) =>
@@ -117,20 +127,26 @@ Deno.serve(async (req) => {
       if (c) pendencias.push(c);
     }
 
-    const body = {
-      kpis: {
-        abertas: commercialCounts["ABERTO"] ?? 0,
-        pedidosMatriz: pedidos.matriz,
-        pedidosEletronica: pedidos.eletronica,
-        pedidosFilial: pedidos.filial,
-      },
+    const prev = (cache?.body ?? null) as Record<string, unknown> | null;
+    const propOk = propRes.status === "fulfilled";
+    const fatOk = fatRes.status === "fulfilled";
 
-      statusCounts,
-      metaPctMin: Math.round((fat / META_MIN) * 1000) / 10,
-      importacoes,
-      pendencias,
+    const body = {
+      kpis: propOk
+        ? {
+            abertas: commercialCounts["ABERTO"] ?? 0,
+            pedidosMatriz: pedidos.matriz,
+            pedidosEletronica: pedidos.eletronica,
+            pedidosFilial: pedidos.filial,
+          }
+        : (prev?.kpis ?? { abertas: 0, pedidosMatriz: 0, pedidosEletronica: 0, pedidosFilial: 0 }),
+      statusCounts: propOk ? statusCounts : (prev?.statusCounts ?? []),
+      metaPctMin: fatOk ? Math.round((fat / META_MIN) * 1000) / 10 : (prev?.metaPctMin ?? 0),
+      importacoes: fatOk ? importacoes : (prev?.importacoes ?? []),
+      pendencias: fatOk ? pendencias : (prev?.pendencias ?? []),
+      parcial: !propOk || !fatOk,
     };
-    cache = { at: Date.now(), body };
+    if (propOk && fatOk) cache = { at: Date.now(), body };
     return json(body);
   } catch (e) {
     console.error(e);
