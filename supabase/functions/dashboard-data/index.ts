@@ -6,6 +6,7 @@ const PROPOSTAS_ID = "1jVafNaC-9xi_b2RDzSIIp73dohZQUGkkbNATf5Hwqbs";
 const FATURAMENTO_ID = "1RB5PP1cxQcCjbGmbTYiAZcMxmMz9Ki2MQMJRbS4yA9I";
 const META_MIN = 400000;
 const META_MAX = 800000;
+const USUARIAS_COMERCIAIS = new Set(["KAUANA.SILVA", "GIULIANA.FERREIRA", "JOSIANE.PAULA"]);
 const MESES = ["JANEIRO","FEVEREIRO","MARÇO","ABRIL","MAIO","JUNHO","JULHO","AGOSTO","SETEMBRO","OUTUBRO","NOVEMBRO","DEZEMBRO"];
 
 function json(body: unknown, status = 200) {
@@ -57,10 +58,15 @@ Deno.serve(async (req) => {
     ]);
 
     const counts: Record<string, number> = {};
+    const commercialCounts: Record<string, number> = {};
     for (const r of propostas) {
       if (!r.some((c) => String(c ?? "").trim())) continue;
       const s = String(r[3] ?? "").toUpperCase().trim() || "SEM STATUS";
       counts[s] = (counts[s] || 0) + 1;
+      const usuario = String(r[4] ?? "").toUpperCase().trim();
+      if (USUARIAS_COMERCIAIS.has(usuario)) {
+        commercialCounts[s] = (commercialCounts[s] || 0) + 1;
+      }
     }
     const statusCounts = Object.entries(counts)
       .map(([name, value]) => ({ name, value }))
@@ -84,9 +90,9 @@ Deno.serve(async (req) => {
 
     return json({
       kpis: {
-        abertas: counts["ABERTO"] ?? 0,
+        abertas: commercialCounts["ABERTO"] ?? 0,
         pedidosAbertos,
-        enviadas: counts["PROPOSTA ENVIADA PARA O CLIENTE"] ?? 0,
+        enviadas: commercialCounts["PROPOSTA ENVIADA PARA O CLIENTE"] ?? 0,
       },
       statusCounts,
       metaPctMin: Math.round((fat / META_MIN) * 1000) / 10,

@@ -1,1 +1,2 @@
 - Dashboard data is read server-side by the dashboard-data function (Google Sheets connector) and returns only aggregates, with the IP allowlist enforced there — keeps raw sheet values and links out of the browser.
+- Proposal KPIs for open and client-sent statuses include only KAUANA.SILVA, GIULIANA.FERREIRA, and JOSIANE.PAULA — keeps commercial counts scoped to the requested team.
