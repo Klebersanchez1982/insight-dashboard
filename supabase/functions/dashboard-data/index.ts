@@ -23,10 +23,12 @@ function clientIp(req: Request): string {
 }
 
 async function getValues(id: string, range: string, render = "FORMATTED_VALUE"): Promise<string[][]> {
+  const connectionKey = Deno.env.get("GOOGLE_SHEETS_API_KEY");
+  if (!connectionKey) throw new Error("Conexão com Google Planilhas não configurada");
   const res = await fetch(`${GATEWAY}/${id}/values/${range}?valueRenderOption=${render}`, {
     headers: {
       Authorization: `Bearer ${Deno.env.get("LOVABLE_API_KEY")}`,
-      "X-Connection-Api-Key": Deno.env.get("GOOGLE_SHEETS_API_KEY")!,
+      "X-Connection-Api-Key": connectionKey,
     },
   });
   if (!res.ok) throw new Error(`Sheets [${res.status}]: ${await res.text()}`);
@@ -47,8 +49,9 @@ Deno.serve(async (req) => {
   if (!ALLOWED_IPS.includes(ip)) return json({ error: "forbidden" }, 403);
 
   try {
-    const [propostas, ano, info] = await Promise.all([
+    const [propostas, pedidos, ano, info] = await Promise.all([
       getValues(PROPOSTAS_ID, "Proposta!A2:G"),
+      getValues(PROPOSTAS_ID, "Pedido!A2:B"),
       getValues(FATURAMENTO_ID, "'ANO 2026'!A2:C", "UNFORMATTED_VALUE"),
       getValues(FATURAMENTO_ID, "INFORMACOES!A3:C"),
     ]);
@@ -62,6 +65,9 @@ Deno.serve(async (req) => {
     const statusCounts = Object.entries(counts)
       .map(([name, value]) => ({ name, value }))
       .sort((a, b) => b.value - a.value);
+    const pedidosAbertos = pedidos.filter((r) =>
+      String(r[1] ?? "").toUpperCase().trim() === "EM ABERTO"
+    ).length;
 
     const mesAtual = MESES[new Date(Date.now() - 3 * 3600 * 1000).getUTCMonth()];
     const row = ano.find((r) => String(r[0] ?? "").toUpperCase().trim() === mesAtual);
@@ -79,7 +85,7 @@ Deno.serve(async (req) => {
     return json({
       kpis: {
         abertas: counts["ABERTO"] ?? 0,
-        aprovadas: counts["PROPOSTA APROVADA"] ?? 0,
+        pedidosAbertos,
         enviadas: counts["PROPOSTA ENVIADA PARA O CLIENTE"] ?? 0,
       },
       statusCounts,
