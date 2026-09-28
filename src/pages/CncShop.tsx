@@ -28,8 +28,10 @@ const CncShop = () => {
   }
 
   const propostasAbertas = data?.kpis.abertas ?? 0;
-  const pedidosAbertos = data?.kpis.pedidosAbertos ?? 0;
-  const propostasEnviadas = data?.kpis.enviadas ?? 0;
+  const pedidosMatriz = data?.kpis.pedidosMatriz ?? 0;
+  const pedidosEletronica = data?.kpis.pedidosEletronica ?? 0;
+  const pedidosFilial = data?.kpis.pedidosFilial ?? 0;
+
   const statusData = data?.statusCounts ?? [];
   const infos = { importacoes: data?.importacoes ?? [], informacoes: data?.pendencias ?? [] };
   const metaAtual = { faturamento: ((data?.metaPctMin ?? 0) / 100) * 400000 };
