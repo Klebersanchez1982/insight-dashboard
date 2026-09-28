@@ -1,4 +1,5 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const ALLOWED_IPS = ["45.230.209.12"];
 const GATEWAY = "https://connector-gateway.lovable.dev/google_sheets/v4/spreadsheets";
@@ -51,11 +52,29 @@ const UNIDADES = ["MATRIZ", "ELETRONICA", "FILIAL"];
 const CACHE_MS = 5 * 60_000;
 let cache: { at: number; body: unknown } | null = null;
 
+const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+
+async function loadStored(): Promise<{ at: number; body: unknown } | null> {
+  try {
+    const { data } = await db.from("dashboard_cache").select("body, updated_at").eq("id", "main").maybeSingle();
+    return data ? { at: new Date(data.updated_at).getTime(), body: data.body } : null;
+  } catch (e) {
+    console.error("cache read:", e);
+    return null;
+  }
+}
+
+async function saveStored(body: unknown) {
+  try {
+    await db.from("dashboard_cache").upsert({ id: "main", body, updated_at: new Date().toISOString() });
+  } catch (e) {
+    console.error("cache write:", e);
+  }
+}
 
 function toNumber(v: unknown): number {
-  if (typeof v === "number") return v;
-  const s = String(v ?? "").replace(/[^\d,.-]/g, "").replace(/\./g, "").replace(",", ".");
-  return parseFloat(s) || 0;
+  const s = typeof v === "number" ? null : String(v ?? "").replace(/[^\d,.-]/g, "").replace(/\./g, "").replace(",", ".");
+  return s === null ? (v as number) : parseFloat(s) || 0;
 }
 
 Deno.serve(async (req) => {
@@ -64,7 +83,9 @@ Deno.serve(async (req) => {
   const ip = clientIp(req);
   if (!ALLOWED_IPS.includes(ip)) return json({ error: "forbidden" }, 403);
 
+  if (!cache) cache = await loadStored();
   if (cache && Date.now() - cache.at < CACHE_MS) return json(cache.body);
+
 
   try {
     const [propRes, fatRes] = await Promise.allSettled([
