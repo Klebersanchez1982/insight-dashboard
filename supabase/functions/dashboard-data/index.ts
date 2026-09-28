@@ -67,19 +67,19 @@ Deno.serve(async (req) => {
   if (cache && Date.now() - cache.at < CACHE_MS) return json(cache.body);
 
   try {
-    const [propRanges, fatRanges, infoRanges] = await Promise.all([
+    const [propRanges, fatRanges] = await Promise.all([
       batchGet(PROPOSTAS_ID, [
         ...UNIDADES.map((u) => `Proposta_${u}!A2:G`),
         ...UNIDADES.map((u) => `Pedido_${u}!A2:B`),
       ]),
-      batchGet(FATURAMENTO_ID, ["'ANO 2026'!A2:C"], "UNFORMATTED_VALUE"),
-      batchGet(FATURAMENTO_ID, ["INFORMACOES!A3:C"]),
+      batchGet(FATURAMENTO_ID, ["'ANO 2026'!A2:C", "INFORMACOES!A3:C"]),
     ]);
     const propostas = propRanges.slice(0, UNIDADES.length).flat();
     const pedidosPorUnidade = propRanges.slice(UNIDADES.length);
 
     const ano = fatRanges[0] ?? [];
-    const info = infoRanges[0] ?? [];
+    const info = fatRanges[1] ?? [];
+
 
     const counts: Record<string, number> = {};
     const commercialCounts: Record<string, number> = {};
