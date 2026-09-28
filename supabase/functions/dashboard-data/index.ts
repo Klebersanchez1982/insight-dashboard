@@ -23,10 +23,11 @@ function clientIp(req: Request): string {
   return xff ? xff.split(",")[0].trim() : "";
 }
 
-async function getValues(id: string, range: string, render = "FORMATTED_VALUE"): Promise<string[][]> {
+async function batchGet(id: string, ranges: string[], render = "FORMATTED_VALUE"): Promise<string[][][]> {
   const connectionKey = Deno.env.get("GOOGLE_SHEETS_API_KEY");
   if (!connectionKey) throw new Error("Conexão com Google Planilhas não configurada");
-  const res = await fetch(`${GATEWAY}/${id}/values/${range}?valueRenderOption=${render}`, {
+  const qs = ranges.map((r) => `ranges=${encodeURIComponent(r)}`).join("&");
+  const res = await fetch(`${GATEWAY}/${id}/values:batchGet?${qs}&valueRenderOption=${render}`, {
     headers: {
       Authorization: `Bearer ${Deno.env.get("LOVABLE_API_KEY")}`,
       "X-Connection-Api-Key": connectionKey,
@@ -34,8 +35,12 @@ async function getValues(id: string, range: string, render = "FORMATTED_VALUE"):
   });
   if (!res.ok) throw new Error(`Sheets [${res.status}]: ${await res.text()}`);
   const data = await res.json();
-  return data.values ?? [];
+  return (data.valueRanges ?? []).map((v: { values?: string[][] }) => v.values ?? []);
 }
+
+const UNIDADES = ["MATRIZ", "ELETRONICA", "FILIAL"];
+const CACHE_MS = 60_000;
+let cache: { at: number; body: unknown } | null = null;
 
 function toNumber(v: unknown): number {
   if (typeof v === "number") return v;
@@ -49,13 +54,21 @@ Deno.serve(async (req) => {
   const ip = clientIp(req);
   if (!ALLOWED_IPS.includes(ip)) return json({ error: "forbidden" }, 403);
 
+  if (cache && Date.now() - cache.at < CACHE_MS) return json(cache.body);
+
   try {
-    const [propostas, pedidos, ano, info] = await Promise.all([
-      getValues(PROPOSTAS_ID, "Proposta!A2:G"),
-      getValues(PROPOSTAS_ID, "Pedido!A2:B"),
-      getValues(FATURAMENTO_ID, "'ANO 2026'!A2:C", "UNFORMATTED_VALUE"),
-      getValues(FATURAMENTO_ID, "INFORMACOES!A3:C"),
+    const [propRanges, fatRanges, infoRanges] = await Promise.all([
+      batchGet(PROPOSTAS_ID, [
+        ...UNIDADES.map((u) => `Proposta_${u}!A2:G`),
+        ...UNIDADES.map((u) => `Pedido_${u}!A2:B`),
+      ]),
+      batchGet(FATURAMENTO_ID, ["'ANO 2026'!A2:C"], "UNFORMATTED_VALUE"),
+      batchGet(FATURAMENTO_ID, ["INFORMACOES!A3:C"]),
     ]);
+    const propostas = propRanges.slice(0, UNIDADES.length).flat();
+    const pedidos = propRanges.slice(UNIDADES.length).flat();
+    const ano = fatRanges[0] ?? [];
+    const info = infoRanges[0] ?? [];
 
     const counts: Record<string, number> = {};
     const commercialCounts: Record<string, number> = {};
@@ -88,7 +101,7 @@ Deno.serve(async (req) => {
       if (c) pendencias.push(c);
     }
 
-    return json({
+    const body = {
       kpis: {
         abertas: commercialCounts["ABERTO"] ?? 0,
         pedidosAbertos,
@@ -98,7 +111,9 @@ Deno.serve(async (req) => {
       metaPctMin: Math.round((fat / META_MIN) * 1000) / 10,
       importacoes,
       pendencias,
-    });
+    };
+    cache = { at: Date.now(), body };
+    return json(body);
   } catch (e) {
     console.error(e);
     return json({ error: "Falha ao carregar dados" }, 500);

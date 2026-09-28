@@ -70,6 +70,11 @@ const CncShop = () => {
           </div>
         ) : (
           <>
+            {error && (
+              <div className="rounded-md border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                Não foi possível carregar os dados agora. Nova tentativa automática em instantes.
+              </div>
+            )}
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
               <KpiCard title="Propostas Comerciais em Aberto" value={propostasAbertas} icon={<FileText className="h-6 w-6" />} subtitle="Status: Aberto" />
               <KpiCard title="Pedidos de Venda em Aberto" value={pedidosAbertos} icon={<ShoppingCart className="h-6 w-6" />} subtitle="Status: Em Aberto" />
