@@ -66,7 +66,8 @@ Deno.serve(async (req) => {
       batchGet(FATURAMENTO_ID, ["INFORMACOES!A3:C"]),
     ]);
     const propostas = propRanges.slice(0, UNIDADES.length).flat();
-    const pedidos = propRanges.slice(UNIDADES.length).flat();
+    const pedidosPorUnidade = propRanges.slice(UNIDADES.length);
+
     const ano = fatRanges[0] ?? [];
     const info = infoRanges[0] ?? [];
 
@@ -84,9 +85,14 @@ Deno.serve(async (req) => {
     const statusCounts = Object.entries(counts)
       .map(([name, value]) => ({ name, value }))
       .sort((a, b) => b.value - a.value);
-    const pedidosAbertos = pedidos.filter((r) =>
-      String(r[1] ?? "").toUpperCase().trim() === "EM ABERTO"
-    ).length;
+    const contarAbertos = (rows: string[][]) =>
+      rows.filter((r) => String(r[1] ?? "").toUpperCase().trim() === "EM ABERTO").length;
+    const pedidos = {
+      matriz: contarAbertos(pedidosPorUnidade[0] ?? []),
+      eletronica: contarAbertos(pedidosPorUnidade[1] ?? []),
+      filial: contarAbertos(pedidosPorUnidade[2] ?? []),
+    };
+
 
     const mesAtual = MESES[new Date(Date.now() - 3 * 3600 * 1000).getUTCMonth()];
     const row = ano.find((r) => String(r[0] ?? "").toUpperCase().trim() === mesAtual);
@@ -104,9 +110,11 @@ Deno.serve(async (req) => {
     const body = {
       kpis: {
         abertas: commercialCounts["ABERTO"] ?? 0,
-        pedidosAbertos,
-        enviadas: commercialCounts["PROPOSTA ENVIADA PARA O CLIENTE"] ?? 0,
+        pedidosMatriz: pedidos.matriz,
+        pedidosEletronica: pedidos.eletronica,
+        pedidosFilial: pedidos.filial,
       },
+
       statusCounts,
       metaPctMin: Math.round((fat / META_MIN) * 1000) / 10,
       importacoes,
