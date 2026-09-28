@@ -92,7 +92,7 @@ Deno.serve(async (req) => {
         commercialCounts[s] = (commercialCounts[s] || 0) + 1;
       }
     }
-    const statusCounts = Object.entries(counts)
+    const statusCounts = Object.entries(commercialCounts)
       .map(([name, value]) => ({ name, value }))
       .sort((a, b) => b.value - a.value);
     const contarAbertos = (rows: string[][]) =>
