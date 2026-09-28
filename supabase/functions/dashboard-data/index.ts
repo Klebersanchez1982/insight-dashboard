@@ -127,20 +127,26 @@ Deno.serve(async (req) => {
       if (c) pendencias.push(c);
     }
 
-    const body = {
-      kpis: {
-        abertas: commercialCounts["ABERTO"] ?? 0,
-        pedidosMatriz: pedidos.matriz,
-        pedidosEletronica: pedidos.eletronica,
-        pedidosFilial: pedidos.filial,
-      },
+    const prev = (cache?.body ?? null) as Record<string, unknown> | null;
+    const propOk = propRes.status === "fulfilled";
+    const fatOk = fatRes.status === "fulfilled";
 
-      statusCounts,
-      metaPctMin: Math.round((fat / META_MIN) * 1000) / 10,
-      importacoes,
-      pendencias,
+    const body = {
+      kpis: propOk
+        ? {
+            abertas: commercialCounts["ABERTO"] ?? 0,
+            pedidosMatriz: pedidos.matriz,
+            pedidosEletronica: pedidos.eletronica,
+            pedidosFilial: pedidos.filial,
+          }
+        : (prev?.kpis ?? { abertas: 0, pedidosMatriz: 0, pedidosEletronica: 0, pedidosFilial: 0 }),
+      statusCounts: propOk ? statusCounts : (prev?.statusCounts ?? []),
+      metaPctMin: fatOk ? Math.round((fat / META_MIN) * 1000) / 10 : (prev?.metaPctMin ?? 0),
+      importacoes: fatOk ? importacoes : (prev?.importacoes ?? []),
+      pendencias: fatOk ? pendencias : (prev?.pendencias ?? []),
+      parcial: !propOk || !fatOk,
     };
-    cache = { at: Date.now(), body };
+    if (propOk && fatOk) cache = { at: Date.now(), body };
     return json(body);
   } catch (e) {
     console.error(e);
