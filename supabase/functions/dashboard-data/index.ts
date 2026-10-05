@@ -1,7 +1,7 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
-const ALLOWED_IPS = ["45.230.209.12"];
+const ALLOWED_IPS = ["45.230.209.12", "170.83.211.253"];
 const GATEWAY = "https://connector-gateway.lovable.dev/google_sheets/v4/spreadsheets";
 const PROPOSTAS_ID = "1jVafNaC-9xi_b2RDzSIIp73dohZQUGkkbNATf5Hwqbs";
 const FATURAMENTO_ID = "1RB5PP1cxQcCjbGmbTYiAZcMxmMz9Ki2MQMJRbS4yA9I";
@@ -81,7 +81,7 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   const ip = clientIp(req);
-  if (!ALLOWED_IPS.includes(ip)) return json({ error: "forbidden" }, 403);
+  if (!ALLOWED_IPS.includes(ip)) return json({ forbidden: true }, 200);
 
   if (!cache) cache = await loadStored();
   if (cache && Date.now() - cache.at < CACHE_MS) return json(cache.body);

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ShieldX, RefreshCw } from "lucide-react";
 
-const ALLOWED_IPS = ["45.230.209.12"];
+const ALLOWED_IPS = ["45.230.209.12", "170.83.211.253"];
 
 export const IpGate = ({ children }: { children: React.ReactNode }) => {
   const [status, setStatus] = useState<"checking" | "allowed" | "denied">("checking");
