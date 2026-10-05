@@ -23,5 +23,6 @@ export async function fetchDashboard(): Promise<DashboardData> {
     if (status === 403) throw new AccessDeniedError("forbidden");
     throw error;
   }
+  if (data && (data as { forbidden?: boolean }).forbidden) throw new AccessDeniedError("forbidden");
   return data as DashboardData;
 }

@@ -81,7 +81,7 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   const ip = clientIp(req);
-  if (!ALLOWED_IPS.includes(ip)) return json({ error: "forbidden" }, 403);
+  if (!ALLOWED_IPS.includes(ip)) return json({ forbidden: true }, 200);
 
   if (!cache) cache = await loadStored();
   if (cache && Date.now() - cache.at < CACHE_MS) return json(cache.body);
