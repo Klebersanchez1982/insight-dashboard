@@ -6,6 +6,7 @@ import { InfoListCard } from "@/components/InfoListCard";
 import { StatusChart } from "@/components/StatusChart";
 import { fetchDashboard, AccessDeniedError, type DashboardData } from "@/data/cncshopData";
 import { useQuery } from "@tanstack/react-query";
+import { ClockWeather } from "@/components/ClockWeather";
 
 const CncShop = () => {
   const { data, isLoading, error, refetch, dataUpdatedAt } = useQuery<DashboardData>({
@@ -51,15 +52,8 @@ const CncShop = () => {
             <h1 className="font-bold text-foreground tracking-tight text-3xl">CNCSHOP</h1>
             <p className="text-muted-foreground text-base">Dashboard Comercial — Propostas e Pedidos</p>
           </div>
-          <div className="ml-auto flex items-center gap-3">
-            <button
-              onClick={() => refetch()}
-              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground bg-secondary hover:bg-secondary/80 px-3 py-2 rounded-md transition-colors"
-            >
-              <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
-              <span className="hidden sm:inline">Atualizar</span>
-            </button>
-            <span className="text-muted-foreground text-sm">Últ. atualização: {lastUpdate}</span>
+          <div className="ml-auto">
+            <ClockWeather />
           </div>
         </div>
       </header>
