@@ -1,2 +1,3 @@
 - Dashboard data is read server-side by the dashboard-data function (Google Sheets connector) and returns only aggregates, with the IP allowlist enforced there — keeps raw sheet values and links out of the browser.
 - Proposal KPIs for open and client-sent statuses include only KAUANA.SILVA, GIULIANA.FERREIRA, and JOSIANE.PAULA — keeps commercial counts scoped to the requested team.
+- Lizy ERP data arrives via the lizy-ingest function (collector inside allowlisted network, x-ingest-key) and is written only through the service-role lizy_replace_snapshot RPC; lizy_* tables have RLS with no policies — keeps raw OS data server-only.
