@@ -8,6 +8,13 @@
       "when": 1790614980468,
       "tag": "0000_dashboard_cache",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793360635709,
+      "tag": "0001_lizy_tables",
+      "breakpoints": true
     }
   ]
 }
