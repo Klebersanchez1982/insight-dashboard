@@ -1,7 +1,7 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
-import { ALLOWED_IPS, clientIp } from "../_shared/allowed-ips.ts";
+const ALLOWED_IPS = ["45.230.209.12", "170.83.211.253"];
 const GATEWAY = "https://connector-gateway.lovable.dev/google_sheets/v4/spreadsheets";
 const PROPOSTAS_ID = "1jVafNaC-9xi_b2RDzSIIp73dohZQUGkkbNATf5Hwqbs";
 const FATURAMENTO_ID = "1RB5PP1cxQcCjbGmbTYiAZcMxmMz9Ki2MQMJRbS4yA9I";
@@ -15,6 +15,13 @@ function json(body: unknown, status = 200) {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json", "Cache-Control": "no-store" },
   });
+}
+
+function clientIp(req: Request): string {
+  const cf = req.headers.get("cf-connecting-ip");
+  if (cf) return cf.trim();
+  const xff = req.headers.get("x-forwarded-for");
+  return xff ? xff.split(",")[0].trim() : "";
 }
 
 async function batchGet(id: string, ranges: string[], render = "FORMATTED_VALUE"): Promise<string[][][]> {
