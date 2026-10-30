@@ -90,7 +90,7 @@ Deno.serve(async (req) => {
   try {
     const [propRes, fatRes] = await Promise.allSettled([
       batchGet(PROPOSTAS_ID, [
-        ...UNIDADES.map((u) => `Proposta_${u}!A2:G`),
+        ...UNIDADES.map((u) => `Proposta_${u}!A2:N`),
         ...UNIDADES.map((u) => `Pedido_${u}!A2:B`),
       ]),
       batchGet(FATURAMENTO_ID, ["'ANO 2026'!A2:C", "INFORMACOES!A3:C"]),
@@ -112,18 +112,18 @@ Deno.serve(async (req) => {
     const info = fatRanges[1] ?? [];
 
 
-    const counts: Record<string, number> = {};
     const commercialCounts: Record<string, number> = {};
+    const detalheCounts: Record<string, number> = {};
     for (const r of propostas) {
       if (!r.some((c) => String(c ?? "").trim())) continue;
-      const s = String(r[3] ?? "").toUpperCase().trim() || "SEM STATUS";
-      counts[s] = (counts[s] || 0) + 1;
-      const usuario = String(r[4] ?? "").toUpperCase().trim();
-      if (USUARIAS_COMERCIAIS.has(usuario)) {
-        commercialCounts[s] = (commercialCounts[s] || 0) + 1;
-      }
+      const usuario = String(r[11] ?? "").toUpperCase().trim();
+      if (!USUARIAS_COMERCIAIS.has(usuario)) continue;
+      const s = String(r[9] ?? "").toUpperCase().trim() || "SEM STATUS";
+      commercialCounts[s] = (commercialCounts[s] || 0) + 1;
+      const d = String(r[13] ?? "").toUpperCase().trim() || "SEM STATUS";
+      detalheCounts[d] = (detalheCounts[d] || 0) + 1;
     }
-    const statusCounts = Object.entries(commercialCounts)
+    const statusCounts = Object.entries(detalheCounts)
       .map(([name, value]) => ({ name, value }))
       .sort((a, b) => b.value - a.value);
     const contarAbertos = (rows: string[][]) =>
