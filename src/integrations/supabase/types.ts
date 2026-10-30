@@ -32,12 +32,178 @@ export type Database = {
         }
         Relationships: []
       }
+      lizy_etapa_map: {
+        Row: {
+          empresa: string
+          etapa_origem: string
+          etapa_padrao: string
+          laboratorio: string | null
+          ordem: number | null
+        }
+        Insert: {
+          empresa: string
+          etapa_origem: string
+          etapa_padrao: string
+          laboratorio?: string | null
+          ordem?: number | null
+        }
+        Update: {
+          empresa?: string
+          etapa_origem?: string
+          etapa_padrao?: string
+          laboratorio?: string | null
+          ordem?: number | null
+        }
+        Relationships: []
+      }
+      lizy_ordens: {
+        Row: {
+          atrasada: boolean | null
+          categoria: string | null
+          cliente: string | null
+          coletado_em: string
+          data_entrada: string | null
+          data_fim: string | null
+          data_prevista: string | null
+          empresa: string
+          equipamento: string | null
+          etapa_origem: string | null
+          fabricante: string | null
+          id_externo: string
+          modelo: string | null
+          numero_ordem: number | null
+          prioridade: string | null
+          sigla: string | null
+          status: string | null
+          tipo_servico: string | null
+          urgente: boolean | null
+        }
+        Insert: {
+          atrasada?: boolean | null
+          categoria?: string | null
+          cliente?: string | null
+          coletado_em: string
+          data_entrada?: string | null
+          data_fim?: string | null
+          data_prevista?: string | null
+          empresa: string
+          equipamento?: string | null
+          etapa_origem?: string | null
+          fabricante?: string | null
+          id_externo: string
+          modelo?: string | null
+          numero_ordem?: number | null
+          prioridade?: string | null
+          sigla?: string | null
+          status?: string | null
+          tipo_servico?: string | null
+          urgente?: boolean | null
+        }
+        Update: {
+          atrasada?: boolean | null
+          categoria?: string | null
+          cliente?: string | null
+          coletado_em?: string
+          data_entrada?: string | null
+          data_fim?: string | null
+          data_prevista?: string | null
+          empresa?: string
+          equipamento?: string | null
+          etapa_origem?: string | null
+          fabricante?: string | null
+          id_externo?: string
+          modelo?: string | null
+          numero_ordem?: number | null
+          prioridade?: string | null
+          sigla?: string | null
+          status?: string | null
+          tipo_servico?: string | null
+          urgente?: boolean | null
+        }
+        Relationships: []
+      }
+      lizy_sync: {
+        Row: {
+          empresa: string
+          qtd_ordens: number | null
+          qtd_tecnicos: number | null
+          ultimo_erro: string | null
+          ultimo_erro_em: string | null
+          ultimo_sucesso: string | null
+        }
+        Insert: {
+          empresa: string
+          qtd_ordens?: number | null
+          qtd_tecnicos?: number | null
+          ultimo_erro?: string | null
+          ultimo_erro_em?: string | null
+          ultimo_sucesso?: string | null
+        }
+        Update: {
+          empresa?: string
+          qtd_ordens?: number | null
+          qtd_tecnicos?: number | null
+          ultimo_erro?: string | null
+          ultimo_erro_em?: string | null
+          ultimo_sucesso?: string | null
+        }
+        Relationships: []
+      }
+      lizy_tecnicos: {
+        Row: {
+          coletado_em: string
+          em_andamento: number | null
+          empresa: string
+          etapas_concluidas: number | null
+          etapas_participadas: number | null
+          horas: number | null
+          horas_media_ordem: number | null
+          periodo_fim: string | null
+          periodo_inicio: string | null
+          tecnico: string
+        }
+        Insert: {
+          coletado_em: string
+          em_andamento?: number | null
+          empresa: string
+          etapas_concluidas?: number | null
+          etapas_participadas?: number | null
+          horas?: number | null
+          horas_media_ordem?: number | null
+          periodo_fim?: string | null
+          periodo_inicio?: string | null
+          tecnico: string
+        }
+        Update: {
+          coletado_em?: string
+          em_andamento?: number | null
+          empresa?: string
+          etapas_concluidas?: number | null
+          etapas_participadas?: number | null
+          horas?: number | null
+          horas_media_ordem?: number | null
+          periodo_fim?: string | null
+          periodo_inicio?: string | null
+          tecnico?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      lizy_replace_snapshot: {
+        Args: {
+          p_coletado_em: string
+          p_empresa: string
+          p_ordens: Json
+          p_periodo_fim: string
+          p_periodo_inicio: string
+          p_tecnicos: Json
+        }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never
