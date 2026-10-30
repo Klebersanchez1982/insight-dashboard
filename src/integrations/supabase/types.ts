@@ -193,17 +193,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      lizy_replace_snapshot: {
-        Args: {
-          p_coletado_em: string
-          p_empresa: string
-          p_ordens: Json
-          p_periodo_fim: string
-          p_periodo_inicio: string
-          p_tecnicos: Json
-        }
-        Returns: Json
-      }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never
