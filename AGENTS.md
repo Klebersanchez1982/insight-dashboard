@@ -1,2 +1,3 @@
 - Dashboard data is read server-side by the dashboard-data function (Google Sheets connector) and returns only aggregates, with the IP allowlist enforced there — keeps raw sheet values and links out of the browser.
 - Proposal KPIs for open and client-sent statuses include only KAUANA.SILVA, GIULIANA.FERREIRA, and JOSIANE.PAULA — keeps commercial counts scoped to the requested team.
+- Lizy comercial: the browser collector posts snapshots to lizy-ingest-comercial (IP allowlist in _shared/allowed-ips.ts + x-ingest-key LIZY_INGEST_KEY); lizy_com_* tables are service_role only and replaced atomically via lizy_com_replace_snapshot; dashboard-data adds only aggregates under `lizy` — keeps client data private while sheets and Lizy run side by side for comparison.

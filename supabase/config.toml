@@ -1,1 +1,4 @@
 project_id = "jtmeamywppqqeurrpfnb"
+
+[functions.lizy-ingest-comercial]
+verify_jwt = false

@@ -1,7 +1,8 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { clientIp, ipPermitido } from "../_shared/allowed-ips.ts";
+import { agregarLizy, type LizyComercial } from "./lizy.ts";
 
-const ALLOWED_IPS = ["45.230.209.12", "170.83.211.253"];
 const GATEWAY = "https://connector-gateway.lovable.dev/google_sheets/v4/spreadsheets";
 const PROPOSTAS_ID = "1jVafNaC-9xi_b2RDzSIIp73dohZQUGkkbNATf5Hwqbs";
 const FATURAMENTO_ID = "1RB5PP1cxQcCjbGmbTYiAZcMxmMz9Ki2MQMJRbS4yA9I";
@@ -15,13 +16,6 @@ function json(body: unknown, status = 200) {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json", "Cache-Control": "no-store" },
   });
-}
-
-function clientIp(req: Request): string {
-  const cf = req.headers.get("cf-connecting-ip");
-  if (cf) return cf.trim();
-  const xff = req.headers.get("x-forwarded-for");
-  return xff ? xff.split(",")[0].trim() : "";
 }
 
 async function batchGet(id: string, ranges: string[], render = "FORMATTED_VALUE"): Promise<string[][][]> {
@@ -77,15 +71,53 @@ function toNumber(v: unknown): number {
   return s === null ? (v as number) : parseFloat(s) || 0;
 }
 
+// Lê em páginas para não esbarrar no limite padrão de 1000 linhas por consulta.
+async function lerTudo<T>(
+  monta: (de: number, ate: number) => PromiseLike<{ data: T[] | null; error: { message: string } | null }>,
+): Promise<T[]> {
+  const out: T[] = [];
+  const PAGINA = 1000;
+  for (let de = 0; de < 50_000; de += PAGINA) {
+    const { data, error } = await monta(de, de + PAGINA - 1);
+    if (error) throw new Error(error.message);
+    out.push(...(data ?? []));
+    if (!data || data.length < PAGINA) break;
+  }
+  return out;
+}
+
+async function carregarLizy(): Promise<LizyComercial | null> {
+  try {
+    const hojeSP = new Date(Date.now() - 3 * 3600 * 1000);
+    const inicioMes = `${hojeSP.toISOString().slice(0, 7)}-01`;
+    const [orcamentos, notas, clientes, sync] = await Promise.all([
+      lerTudo((de, ate) => db.from("lizy_com_orcamentos").select("empresa, status, vendedor, valor")
+        .order("empresa").order("id_externo").range(de, ate)),
+      lerTudo((de, ate) =>
+        db.from("lizy_com_notas").select("empresa, situacao, cliente, id_cliente, valor, emissao")
+          .gte("emissao", inicioMes).order("empresa").order("id_externo").range(de, ate)
+      ),
+      db.from("lizy_com_clientes").select("empresa, ativos, novos").then((r) => r.data ?? []),
+      db.from("lizy_com_sync").select("empresa, ultimo_sucesso").then((r) => r.data ?? []),
+    ]);
+    return agregarLizy(orcamentos, notas, clientes, sync);
+  } catch (e) {
+    console.error("lizy:", e);
+    return null;
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   const ip = clientIp(req);
-  if (!ALLOWED_IPS.includes(ip)) return json({ forbidden: true }, 200);
+  if (!ipPermitido(ip)) return json({ forbidden: true }, 200);
 
   if (!cache) cache = await loadStored();
   if (cache && Date.now() - cache.at < CACHE_MS) return json(cache.body);
 
+
+  const lizy = await carregarLizy();
 
   try {
     const [propRes, fatRes] = await Promise.allSettled([
@@ -166,13 +198,17 @@ Deno.serve(async (req) => {
       importacoes: fatOk ? importacoes : (prev?.importacoes ?? []),
       pendencias: fatOk ? pendencias : (prev?.pendencias ?? []),
       parcial: !propOk || !fatOk,
+      lizy: lizy ?? prev?.lizy ?? null,
     };
     if (propOk && fatOk) { cache = { at: Date.now(), body }; await saveStored(body); }
     return json(body);
   } catch (e) {
     console.error(e);
     const stored = cache ?? (await loadStored());
-    if (stored) return json({ ...(stored.body as Record<string, unknown>), parcial: true });
-    return json({ kpis: { abertas: 0, pedidosMatriz: 0, pedidosEletronica: 0, pedidosFilial: 0 }, statusCounts: [], metaPctMin: 0, importacoes: [], pendencias: [], parcial: true });
+    if (stored) {
+      const b = stored.body as Record<string, unknown>;
+      return json({ ...b, lizy: lizy ?? b.lizy ?? null, parcial: true });
+    }
+    return json({ kpis: { abertas: 0, pedidosMatriz: 0, pedidosEletronica: 0, pedidosFilial: 0 }, statusCounts: [], metaPctMin: 0, importacoes: [], pendencias: [], parcial: true, lizy });
   }
 });

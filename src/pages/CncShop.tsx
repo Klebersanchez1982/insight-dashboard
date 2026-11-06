@@ -7,6 +7,7 @@ import { StatusChart } from "@/components/StatusChart";
 import { fetchDashboard, AccessDeniedError, type DashboardData } from "@/data/cncshopData";
 import { useQuery } from "@tanstack/react-query";
 import { ClockWeather } from "@/components/ClockWeather";
+import { LizyComparacao } from "@/components/LizyComparacao";
 
 const CncShop = () => {
   const { data, isLoading, error, refetch, dataUpdatedAt } = useQuery<DashboardData>({
@@ -102,6 +103,14 @@ const CncShop = () => {
               />
             </div>
 
+            <LizyComparacao
+              lizy={data?.lizy}
+              planilha={{
+                propostasAbertas,
+                pedidos: { matriz: pedidosMatriz, eletronica: pedidosEletronica, filial: pedidosFilial },
+                faturamentoMes: metaAtual.faturamento,
+              }}
+            />
           </>
         )}
       </main>
