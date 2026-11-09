@@ -88,23 +88,38 @@ async function lerTudo<T>(
 
 async function carregarLizy(): Promise<LizyComercial | null> {
   try {
-    const hojeSP = new Date(Date.now() - 3 * 3600 * 1000);
-    const inicioMes = `${hojeSP.toISOString().slice(0, 7)}-01`;
-    const [orcamentos, notas, clientes, sync] = await Promise.all([
-      lerTudo((de, ate) => db.from("lizy_com_orcamentos").select("empresa, status, vendedor, valor")
-        .order("empresa").order("id_externo").range(de, ate)),
+    const [orcamentos, sync] = await Promise.all([
       lerTudo((de, ate) =>
-        db.from("lizy_com_notas").select("empresa, situacao, cliente, id_cliente, valor, emissao")
-          .gte("emissao", inicioMes).order("empresa").order("id_externo").range(de, ate)
+        db.from("lizy_com_orcamentos").select("empresa, tipo_orcamento, status, vendedor, valor")
+          .eq("tipo_orcamento", 1).order("empresa").order("id_externo").range(de, ate)
       ),
-      db.from("lizy_com_clientes").select("empresa, ativos, novos").then((r) => r.data ?? []),
       db.from("lizy_com_sync").select("empresa, ultimo_sucesso").then((r) => r.data ?? []),
     ]);
-    return agregarLizy(orcamentos, notas, clientes, sync);
+    // Notas e clientes continuam sendo coletados, mas a tela atual não os exibe.
+    return agregarLizy(orcamentos, [], [], sync);
   } catch (e) {
     console.error("lizy:", e);
     return null;
   }
+}
+
+// Com dados da Lizy, propostas, pedidos e distribuição por status passam a vir dela
+// (só venda de produtos). Meta, importações e pendências continuam vindo das planilhas.
+// Sem dados da Lizy, a tela segue com os números da planilha.
+function comLizy(body: unknown, lizy: LizyComercial | null) {
+  const { lizy: _antigo, ...base } = (body ?? {}) as Record<string, unknown>;
+  if (!lizy || lizy.semDados) return { ...base, fonte: { origem: "planilha" } };
+  return {
+    ...base,
+    kpis: {
+      abertas: lizy.propostasAbertas,
+      pedidosMatriz: lizy.pedidos.matriz,
+      pedidosEletronica: lizy.pedidos.eletronica,
+      pedidosFilial: lizy.pedidos.filial,
+    },
+    statusCounts: lizy.statusEquipe,
+    fonte: { origem: "lizy", atualizadoEm: lizy.atualizadoEm, desatualizado: lizy.desatualizado },
+  };
 }
 
 Deno.serve(async (req) => {
@@ -113,11 +128,10 @@ Deno.serve(async (req) => {
   const ip = clientIp(req);
   if (!ipPermitido(ip)) return json({ forbidden: true }, 200);
 
-  if (!cache) cache = await loadStored();
-  if (cache && Date.now() - cache.at < CACHE_MS) return json(cache.body);
-
-
   const lizy = await carregarLizy();
+
+  if (!cache) cache = await loadStored();
+  if (cache && Date.now() - cache.at < CACHE_MS) return json(comLizy(cache.body, lizy));
 
   try {
     const [propRes, fatRes] = await Promise.allSettled([
@@ -198,17 +212,13 @@ Deno.serve(async (req) => {
       importacoes: fatOk ? importacoes : (prev?.importacoes ?? []),
       pendencias: fatOk ? pendencias : (prev?.pendencias ?? []),
       parcial: !propOk || !fatOk,
-      lizy: lizy ?? prev?.lizy ?? null,
     };
     if (propOk && fatOk) { cache = { at: Date.now(), body }; await saveStored(body); }
-    return json(body);
+    return json(comLizy(body, lizy));
   } catch (e) {
     console.error(e);
     const stored = cache ?? (await loadStored());
-    if (stored) {
-      const b = stored.body as Record<string, unknown>;
-      return json({ ...b, lizy: lizy ?? b.lizy ?? null, parcial: true });
-    }
-    return json({ kpis: { abertas: 0, pedidosMatriz: 0, pedidosEletronica: 0, pedidosFilial: 0 }, statusCounts: [], metaPctMin: 0, importacoes: [], pendencias: [], parcial: true, lizy });
+    if (stored) return json(comLizy({ ...(stored.body as Record<string, unknown>), parcial: true }, lizy));
+    return json(comLizy({ kpis: { abertas: 0, pedidosMatriz: 0, pedidosEletronica: 0, pedidosFilial: 0 }, statusCounts: [], metaPctMin: 0, importacoes: [], pendencias: [], parcial: true }, lizy));
   }
 });

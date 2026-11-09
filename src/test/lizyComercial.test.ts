@@ -12,11 +12,11 @@ describe("agregarLizy", () => {
   it("conta propostas em aberto só da equipe comercial", () => {
     const r = agregarLizy(
       [
-        { empresa: "Matriz", status: "ENVIAR_AO_CLIENTE", vendedor: "KAUANA.SILVA", valor: 100 },
-        { empresa: "Filial", status: "AGUARDANDO_APROVACAO", vendedor: "giuliana.ferreira", valor: 50 },
-        { empresa: "Matriz", status: "AGUARDANDO_APROVACAO", vendedor: "OUTRO.VENDEDOR", valor: 999 },
-        { empresa: "Matriz", status: "AGUARDANDO_APROVACAO", vendedor: null, valor: 999 },
-        { empresa: "Eletronica", status: "NAO_APROVADO", vendedor: "JOSIANE.PAULA", valor: 10 },
+        { empresa: "Matriz", tipo_orcamento: 1, status: "ENVIAR_AO_CLIENTE", vendedor: "KAUANA.SILVA", valor: 100 },
+        { empresa: "Filial", tipo_orcamento: 1, status: "AGUARDANDO_APROVACAO", vendedor: "giuliana.ferreira", valor: 50 },
+        { empresa: "Matriz", tipo_orcamento: 1, status: "AGUARDANDO_APROVACAO", vendedor: "OUTRO.VENDEDOR", valor: 999 },
+        { empresa: "Matriz", tipo_orcamento: 1, status: "AGUARDANDO_APROVACAO", vendedor: null, valor: 999 },
+        { empresa: "Eletronica", tipo_orcamento: 1, status: "NAO_APROVADO", vendedor: "JOSIANE.PAULA", valor: 10 },
       ],
       [], [], syncOk, agora,
     );
@@ -28,10 +28,10 @@ describe("agregarLizy", () => {
   it("pedidos aprovados por unidade valem para todos os vendedores", () => {
     const r = agregarLizy(
       [
-        { empresa: "Matriz", status: "APROVADO", vendedor: "OUTRO", valor: 1 },
-        { empresa: "Matriz", status: "APROVADO", vendedor: null, valor: 1 },
-        { empresa: "Filial", status: "FINALIZADO", vendedor: null, valor: 1 },
-        { empresa: "Eletronica", status: "APROVADO", vendedor: null, valor: 1 },
+        { empresa: "Matriz", tipo_orcamento: 1, status: "APROVADO", vendedor: "OUTRO", valor: 1 },
+        { empresa: "Matriz", tipo_orcamento: 1, status: "APROVADO", vendedor: null, valor: 1 },
+        { empresa: "Filial", tipo_orcamento: 1, status: "FINALIZADO", vendedor: null, valor: 1 },
+        { empresa: "Eletronica", tipo_orcamento: 1, status: "APROVADO", vendedor: null, valor: 1 },
       ],
       [], [], syncOk, agora,
     );
@@ -55,6 +55,23 @@ describe("agregarLizy", () => {
     expect(r.faturamentoPorUnidade).toEqual({ matriz: 10000.67, eletronica: 0, filial: 500 });
     expect(r.notasMes).toBe(3);
     expect(r.topClientes[0]).toEqual({ nome: "A", valor: 10000.67 });
+  });
+
+  it("considera só venda de produtos (tipo 1); OS de serviço (tipo 5) ficam de fora", () => {
+    const r = agregarLizy(
+      [
+        { empresa: "Matriz", tipo_orcamento: 1, status: "AGUARDANDO_APROVACAO", vendedor: "KAUANA.SILVA", valor: 100 },
+        { empresa: "Matriz", tipo_orcamento: 5, status: "AGUARDANDO_APROVACAO", vendedor: "KAUANA.SILVA", valor: 900 },
+        { empresa: "Matriz", tipo_orcamento: 5, status: "APROVADO", vendedor: "KAUANA.SILVA", valor: 900 },
+        { empresa: "Matriz", tipo_orcamento: null, status: "APROVADO", vendedor: null, valor: 1 },
+        { empresa: "Filial", tipo_orcamento: 1, status: "APROVADO", vendedor: null, valor: 1 },
+      ],
+      [], [], syncOk, agora,
+    );
+    expect(r.propostasAbertas).toBe(1);
+    expect(r.propostasAbertasValor).toBe(100);
+    expect(r.pedidos).toEqual({ matriz: 0, eletronica: 0, filial: 1 });
+    expect(r.statusEquipe).toEqual([{ name: "AGUARDANDO APROVAÇÃO", value: 1 }]);
   });
 
   it("marca desatualizado no expediente quando a coleta passa de 30 min", () => {

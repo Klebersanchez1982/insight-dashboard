@@ -1,4 +1,4 @@
-import { FileText, ShoppingCart, RefreshCw, Package, Info, ShieldX } from "lucide-react";
+import { FileText, ShoppingCart, RefreshCw, Package, Info, ShieldX, AlertTriangle } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { KpiCard } from "@/components/KpiCard";
 import { MetaRangeCard } from "@/components/MetaRangeCard";
@@ -6,46 +6,15 @@ import { InfoListCard } from "@/components/InfoListCard";
 import { StatusChart } from "@/components/StatusChart";
 import { fetchDashboard, AccessDeniedError, type DashboardData } from "@/data/cncshopData";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
 import { ClockWeather } from "@/components/ClockWeather";
-import { LizyComparacao } from "@/components/LizyComparacao";
-
-type Tela = "planilha" | "lizy";
-const TROCA_MS = 30_000;
-
-// Tela fixa pela URL (?tela=planilha ou ?tela=lizy); sem parâmetro, alterna sozinha.
-function telaFixada(): Tela | null {
-  const t = new URLSearchParams(window.location.search).get("tela");
-  return t === "planilha" || t === "lizy" ? t : null;
-}
 
 const CncShop = () => {
-  const fixa = telaFixada();
-  const [tela, setTela] = useState<Tela>(fixa ?? "planilha");
-  const [ciclo, setCiclo] = useState(0); // reinicia o tempo ao trocar manualmente
   const { data, isLoading, error, refetch, dataUpdatedAt } = useQuery<DashboardData>({
     queryKey: ["cncshop-dashboard"],
     queryFn: fetchDashboard,
     refetchInterval: 5 * 60 * 1000,
     retry: (count, err) => !(err instanceof AccessDeniedError) && count < 2,
   });
-
-  const lizyComDados = !!data?.lizy && !data.lizy.semDados;
-  const alterna = !fixa && lizyComDados;
-
-  useEffect(() => {
-    if (!alterna) {
-      if (!fixa) setTela("planilha");
-      return;
-    }
-    const t = setTimeout(() => setTela((v) => (v === "planilha" ? "lizy" : "planilha")), TROCA_MS);
-    return () => clearTimeout(t);
-  }, [alterna, fixa, tela, ciclo]);
-
-  const escolher = (t: Tela) => {
-    setTela(t);
-    setCiclo((c) => c + 1);
-  };
 
   if (error instanceof AccessDeniedError) {
     return (
@@ -68,6 +37,12 @@ const CncShop = () => {
   const infos = { importacoes: data?.importacoes ?? [], informacoes: data?.pendencias ?? [] };
   const metaAtual = { faturamento: ((data?.metaPctMin ?? 0) / 100) * 400000 };
 
+  const daLizy = data?.fonte?.origem === "lizy";
+  const subPedidos = daLizy ? "Aprovados · venda de produtos" : "Status: Em Aberto";
+  const lizyHora = data?.fonte?.atualizadoEm
+    ? new Date(data.fonte.atualizadoEm).toLocaleTimeString("pt-BR", { timeZone: "America/Sao_Paulo", hour: "2-digit", minute: "2-digit" })
+    : null;
+
   const lastUpdate = dataUpdatedAt
     ? new Date(dataUpdatedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
     : "—";
@@ -81,31 +56,11 @@ const CncShop = () => {
           </div>
           <div>
             <h1 className="font-bold text-foreground tracking-tight text-3xl">CNCSHOP</h1>
-            <p className="text-muted-foreground text-base">Dashboard Comercial — Propostas e Pedidos</p>
+            <p className="text-muted-foreground text-base">
+              Dashboard Comercial — Propostas e Pedidos
+              {daLizy && lizyHora && <span className="ml-2 text-sm">· Lizy {lizyHora}</span>}
+            </p>
           </div>
-          {(alterna || fixa) && (
-            <nav className="ml-8 flex gap-2" aria-label="Telas do painel">
-              {(["planilha", "lizy"] as const).map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => escolher(t)}
-                  className={`relative overflow-hidden rounded-md px-4 py-2 text-base font-semibold uppercase tracking-wider transition-colors ${
-                    tela === t ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {t === "planilha" ? "Planilha" : "Lizy"}
-                  {tela === t && alterna && (
-                    <span
-                      key={`${tela}-${ciclo}`}
-                      className="absolute bottom-0 left-0 h-0.5 bg-accent animate-progresso-tela"
-                      style={{ animationDuration: `${TROCA_MS}ms` }}
-                    />
-                  )}
-                </button>
-              ))}
-            </nav>
-          )}
           <div className="ml-auto">
             <ClockWeather />
           </div>
@@ -125,13 +80,17 @@ const CncShop = () => {
                 Não foi possível carregar os dados agora. Nova tentativa automática em instantes.
               </div>
             )}
-            {tela === "planilha" ? (
-            <>
+            {daLizy && data?.fonte?.desatualizado && (
+              <div className="flex items-center gap-2 rounded-md border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                <AlertTriangle className="h-4 w-4" />
+                Dados da Lizy desatualizados{lizyHora ? ` (última coleta ${lizyHora})` : ""} — verificar o coletor no PC da TV.
+              </div>
+            )}
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-              <KpiCard title="Propostas Comerciais em Aberto" value={propostasAbertas} icon={<FileText className="h-6 w-6" />} subtitle="Todas as unidades" />
-              <KpiCard title="Pedidos de Venda — Matriz" value={pedidosMatriz} icon={<ShoppingCart className="h-6 w-6" />} subtitle="Status: Em Aberto" />
-              <KpiCard title="Pedidos de Venda — Eletrônica" value={pedidosEletronica} icon={<ShoppingCart className="h-6 w-6" />} subtitle="Status: Em Aberto" />
-              <KpiCard title="Pedidos de Venda — Filial" value={pedidosFilial} icon={<ShoppingCart className="h-6 w-6" />} subtitle="Status: Em Aberto" />
+              <KpiCard title="Propostas Comerciais em Aberto" value={propostasAbertas} icon={<FileText className="h-6 w-6" />} subtitle={daLizy ? "Todas as unidades · venda de produtos" : "Todas as unidades"} />
+              <KpiCard title="Pedidos de Venda — Matriz" value={pedidosMatriz} icon={<ShoppingCart className="h-6 w-6" />} subtitle={subPedidos} />
+              <KpiCard title="Pedidos de Venda — Eletrônica" value={pedidosEletronica} icon={<ShoppingCart className="h-6 w-6" />} subtitle={subPedidos} />
+              <KpiCard title="Pedidos de Venda — Filial" value={pedidosFilial} icon={<ShoppingCart className="h-6 w-6" />} subtitle={subPedidos} />
             </div>
 
 
@@ -157,17 +116,7 @@ const CncShop = () => {
                 icon={<Info className="h-6 w-6" />}
               />
             </div>
-            </>
-            ) : (
-            <LizyComparacao
-              lizy={data?.lizy}
-              planilha={{
-                propostasAbertas,
-                pedidos: { matriz: pedidosMatriz, eletronica: pedidosEletronica, filial: pedidosFilial },
-                faturamentoMes: metaAtual.faturamento,
-              }}
-            />
-            )}
+
           </>
         )}
       </main>

@@ -3,6 +3,7 @@
 
 export interface OrcamentoRow {
   empresa: string;
+  tipo_orcamento: number | null;
   status: string | null;
   vendedor: string | null;
   valor: number | string | null;
@@ -42,6 +43,10 @@ export interface LizyComercial {
 
 // Mesma regra das planilhas: KPIs de propostas em aberto contam só a equipe comercial.
 export const USUARIAS_COMERCIAIS = new Set(["KAUANA.SILVA", "GIULIANA.FERREIRA", "JOSIANE.PAULA"]);
+
+// Tipos de orçamento da Lizy: 1 = venda de produtos (referência "OVP"), 5 = OS de serviço.
+// O painel considera só venda de produtos (filtro "Produtos" da tela de Orçamentos da Lizy).
+export const TIPOS_PRODUTO = new Set([1]);
 
 // Status da Lizy que equivalem a "proposta em aberto".
 export const STATUS_ABERTOS = new Set(["ENVIAR_AO_CLIENTE", "AGUARDANDO_APROVACAO"]);
@@ -116,6 +121,7 @@ export function agregarLizy(
   const pedidos = { matriz: 0, eletronica: 0, filial: 0 };
 
   for (const o of orcamentos) {
+    if (!TIPOS_PRODUTO.has(Number(o.tipo_orcamento))) continue;
     const status = String(o.status ?? "").toUpperCase().trim();
     const vendedor = String(o.vendedor ?? "").toUpperCase().trim();
     const daEquipe = USUARIAS_COMERCIAIS.has(vendedor);

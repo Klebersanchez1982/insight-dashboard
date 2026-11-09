@@ -20,7 +20,9 @@ interface StatusChartProps {
 // Cores com significado: sucesso (verde), andamento (azul/âmbar), neutro/encerrado (cinza)
 function semanticColor(name: string, index: number): string {
   const s = name.toUpperCase();
-  if (/APROVAD|FECHAD|GANH|CONCLU|FATURAD/.test(s)) return "hsl(142, 70%, 45%)";
+  // Negativos primeiro: "NÃO APROVADO" contém "APROVAD" e não pode sair verde
+  if (/N[ÃA]O APROVAD|CANCEL|PERDID|DECLIN|RECUSAD|REPROVAD|ENCERRAD/.test(s)) return "hsl(215, 12%, 50%)";
+  if (/APROVAD|FECHAD|GANH|CONCLU|FATURAD|FINALIZAD/.test(s)) return "hsl(142, 70%, 45%)";
   if (/ABERT|ANDAMENTO|NEGOCIA/.test(s)) return "hsl(200, 80%, 55%)";
   if (/ENVIAD|AGUARD|PENDENT|AVALIA/.test(s)) return "hsl(38, 92%, 50%)";
   if (/CANCEL|PERDID|DECLIN|RECUSAD|REPROVAD|ENCERRAD/.test(s)) return "hsl(215, 12%, 50%)";
