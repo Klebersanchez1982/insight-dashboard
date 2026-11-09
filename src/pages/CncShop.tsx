@@ -12,7 +12,7 @@ const CncShop = () => {
   const { data, isLoading, error, refetch, dataUpdatedAt } = useQuery<DashboardData>({
     queryKey: ["cncshop-dashboard"],
     queryFn: fetchDashboard,
-    refetchInterval: 5 * 60 * 1000,
+    refetchInterval: 60 * 60 * 1000, // dados do painel: a cada 60 min
     retry: (count, err) => !(err instanceof AccessDeniedError) && count < 2,
   });
 
