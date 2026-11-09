@@ -1,6 +1,6 @@
 // IPs da rede da empresa autorizados a ler o dashboard e a enviar dados da Lizy.
 // Lista única para que leitura (dashboard-data) e envio (lizy-ingest-comercial) sigam a mesma regra.
-export const ALLOWED_IPS = ["45.230.209.12", "170.83.211.253"];
+export const ALLOWED_IPS = ["45.230.209.12", "170.83.211.253", "207.175.66.13"];
 
 export function clientIp(req: Request): string {
   const cf = req.headers.get("cf-connecting-ip");
