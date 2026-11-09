@@ -41,7 +41,7 @@ export const ClockWeather = () => {
   const { data: w } = useQuery({
     queryKey: ["weather-monte-alto"],
     queryFn: fetchWeather,
-    refetchInterval: 30 * 60 * 1000,
+    refetchInterval: 60 * 60 * 1000, // previsão do tempo: a cada 60 min
   });
 
   const hora = now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
