@@ -87,7 +87,7 @@ const CncShop = () => {
               </div>
             )}
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-              <KpiCard title="Propostas Comerciais em Aberto" value={propostasAbertas} icon={<FileText className="h-6 w-6" />} subtitle={daLizy ? "Todas as unidades · venda de produtos" : "Todas as unidades"} />
+              <KpiCard title="Propostas Comerciais em Aberto" value={propostasAbertas} icon={<FileText className="h-6 w-6" />} subtitle={daLizy ? "Todas as unidades · produtos · todos os status" : "Todas as unidades"} />
               <KpiCard title="Pedidos de Venda — Matriz" value={pedidosMatriz} icon={<ShoppingCart className="h-6 w-6" />} subtitle={subPedidos} />
               <KpiCard title="Pedidos de Venda — Eletrônica" value={pedidosEletronica} icon={<ShoppingCart className="h-6 w-6" />} subtitle={subPedidos} />
               <KpiCard title="Pedidos de Venda — Filial" value={pedidosFilial} icon={<ShoppingCart className="h-6 w-6" />} subtitle={subPedidos} />

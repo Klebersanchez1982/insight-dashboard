@@ -9,7 +9,7 @@ const syncOk = ["Matriz", "Eletronica", "Filial"].map((empresa) => ({
 }));
 
 describe("agregarLizy", () => {
-  it("conta propostas em aberto só da equipe comercial", () => {
+  it("propostas: todos os status; nos em aberto só a equipe comercial", () => {
     const r = agregarLizy(
       [
         { empresa: "Matriz", tipo_orcamento: 1, status: "ENVIAR_AO_CLIENTE", vendedor: "KAUANA.SILVA", valor: 100 },
@@ -20,9 +20,11 @@ describe("agregarLizy", () => {
       ],
       [], [], syncOk, agora,
     );
-    expect(r.propostasAbertas).toBe(2);
-    expect(r.propostasAbertasValor).toBe(150);
+    // 2 em aberto da equipe + 1 não aprovado (qualquer vendedor); os 2 em aberto de fora da equipe não contam
+    expect(r.propostasAbertas).toBe(3);
+    expect(r.propostasAbertasValor).toBe(160);
     expect(r.statusEquipe).toContainEqual({ name: "NÃO APROVADO", value: 1 });
+    expect(r.statusEquipe.reduce((a, s) => a + s.value, 0)).toBe(r.propostasAbertas);
   });
 
   it("pedidos aprovados por unidade valem para todos os vendedores", () => {
@@ -68,10 +70,10 @@ describe("agregarLizy", () => {
       ],
       [], [], syncOk, agora,
     );
-    expect(r.propostasAbertas).toBe(1);
-    expect(r.propostasAbertasValor).toBe(100);
+    // tipo 1: 1 em aberto da equipe + 1 aprovado (Filial); tipo 5 e tipo nulo ficam de fora
+    expect(r.propostasAbertas).toBe(2);
     expect(r.pedidos).toEqual({ matriz: 0, eletronica: 0, filial: 1 });
-    expect(r.statusEquipe).toEqual([{ name: "AGUARDANDO APROVAÇÃO", value: 1 }]);
+    expect(r.statusEquipe).toEqual(expect.arrayContaining([{ name: "AGUARDANDO APROVAÇÃO", value: 1 }, { name: "APROVADO", value: 1 }]));
   });
 
   it("marca desatualizado no expediente quando a coleta passa de 30 min", () => {

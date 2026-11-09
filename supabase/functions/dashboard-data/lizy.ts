@@ -124,14 +124,14 @@ export function agregarLizy(
     if (!TIPOS_PRODUTO.has(Number(o.tipo_orcamento))) continue;
     const status = String(o.status ?? "").toUpperCase().trim();
     const vendedor = String(o.vendedor ?? "").toUpperCase().trim();
-    const daEquipe = USUARIAS_COMERCIAIS.has(vendedor);
-    if (daEquipe) {
+    // Cartão de propostas = todas as propostas de produto, em qualquer status.
+    // Nos status em aberto (envio/aprovação) contam só as vendedoras da equipe; nos demais, todos.
+    const conta = !STATUS_ABERTOS.has(status) || USUARIAS_COMERCIAIS.has(vendedor);
+    if (conta) {
       const rotulo = ROTULO_STATUS[status] ?? (status.replace(/_/g, " ") || "SEM STATUS");
       statusMap[rotulo] = (statusMap[rotulo] ?? 0) + 1;
-      if (STATUS_ABERTOS.has(status)) {
-        propostasAbertas++;
-        propostasAbertasValor += n(o.valor);
-      }
+      propostasAbertas++;
+      propostasAbertasValor += n(o.valor);
     }
     const u = UNIDADE[o.empresa];
     if (u && status === STATUS_PEDIDO_ABERTO) pedidos[u]++;
